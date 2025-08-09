@@ -1,0 +1,46 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SaxsSpot.Orchestrator.Host", "SaxsSpot.Orchestrator.Host\SaxsSpot.Orchestrator.Host.csproj", "{7F57B26D-20BC-42D3-91A1-19C006CBE6C1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SaxsSpot.Orchestrator.Domain", "SaxsSpot.Orchestrator.Domain\SaxsSpot.Orchestrator.Domain.csproj", "{32287921-2339-41AB-AF8B-3949BF93407E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SaxsSpot.Orchestrator.Application", "SaxsSpot.Orchestrator.Application\SaxsSpot.Orchestrator.Application.csproj", "{E9591B50-E706-4FD7-BC2D-02D40C68735C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SaxsSpot.Orchestrator.Infrastructure", "SaxsSpot.Orchestrator.Infrastructure\SaxsSpot.Orchestrator.Infrastructure.csproj", "{A76200AB-034C-4F31-B2D8-6DEA7EB434CD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SaxsSpot.Orchestrator.Kafka", "SaxsSpot.Orchestrator.Kafka\SaxsSpot.Orchestrator.Kafka.csproj", "{0FCEE461-41C0-4B30-B25F-9E1E083E9B6C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SaxsSpot.Orchestrator.Contracts", "SaxsSpot.Orchestrator.Contracts\SaxsSpot.Orchestrator.Contracts.csproj", "{810102D2-1F90-41B2-BC0D-BCEE79A46539}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7F57B26D-20BC-42D3-91A1-19C006CBE6C1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7F57B26D-20BC-42D3-91A1-19C006CBE6C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7F57B26D-20BC-42D3-91A1-19C006CBE6C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7F57B26D-20BC-42D3-91A1-19C006CBE6C1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{32287921-2339-41AB-AF8B-3949BF93407E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{32287921-2339-41AB-AF8B-3949BF93407E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{32287921-2339-41AB-AF8B-3949BF93407E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{32287921-2339-41AB-AF8B-3949BF93407E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E9591B50-E706-4FD7-BC2D-02D40C68735C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E9591B50-E706-4FD7-BC2D-02D40C68735C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E9591B50-E706-4FD7-BC2D-02D40C68735C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E9591B50-E706-4FD7-BC2D-02D40C68735C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A76200AB-034C-4F31-B2D8-6DEA7EB434CD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A76200AB-034C-4F31-B2D8-6DEA7EB434CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A76200AB-034C-4F31-B2D8-6DEA7EB434CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A76200AB-034C-4F31-B2D8-6DEA7EB434CD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0FCEE461-41C0-4B30-B25F-9E1E083E9B6C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0FCEE461-41C0-4B30-B25F-9E1E083E9B6C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0FCEE461-41C0-4B30-B25F-9E1E083E9B6C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0FCEE461-41C0-4B30-B25F-9E1E083E9B6C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{810102D2-1F90-41B2-BC0D-BCEE79A46539}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{810102D2-1F90-41B2-BC0D-BCEE79A46539}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{810102D2-1F90-41B2-BC0D-BCEE79A46539}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{810102D2-1F90-41B2-BC0D-BCEE79A46539}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

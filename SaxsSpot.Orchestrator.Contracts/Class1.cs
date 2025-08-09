@@ -1,0 +1,2 @@
+﻿namespace SaxsSpot.Orchestrator.Contracts;
+
