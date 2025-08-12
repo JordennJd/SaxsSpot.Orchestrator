@@ -9,10 +9,16 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.4"/>
+        <PackageReference Include="SaxsSpot.Shared.Authenticator" Version="1.0.5" />
+        <PackageReference Include="SaxsSpot.Shared.ProgressTrackerClient" Version="1.0.5" />
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Controllers\" />
+      <ProjectReference Include="..\SaxsSpot.Orchestrator.Application\SaxsSpot.Orchestrator.Application.csproj" />
+      <ProjectReference Include="..\SaxsSpot.Orchestrator.Contracts\SaxsSpot.Orchestrator.Contracts.csproj" />
+      <ProjectReference Include="..\SaxsSpot.Orchestrator.Domain\SaxsSpot.Orchestrator.Domain.csproj" />
+      <ProjectReference Include="..\SaxsSpot.Orchestrator.Infrastructure\SaxsSpot.Orchestrator.Infrastructure.csproj" />
+      <ProjectReference Include="..\SaxsSpot.Orchestrator.Kafka\SaxsSpot.Orchestrator.Kafka.csproj" />
     </ItemGroup>
 
 </Project>

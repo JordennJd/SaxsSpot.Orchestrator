@@ -1,0 +1,25 @@
+using FluentValidation;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+
+namespace SaxsSpot.Orchestrator.Application.Extensions;
+
+public static class ServiceCollectionExtension
+{
+    public static IServiceCollection AddApplication(this IServiceCollection services, IConfiguration configuration)
+    {
+        var domain = AppDomain.CurrentDomain.GetAssemblies();
+        
+        return services
+            // .AddScoped<INanoSystemService, Services.NanoSystemService>()
+            .AddLogging(cfg => cfg.AddConsole())
+            .AddMediatR(cfg =>
+                {
+                    cfg.RegisterServicesFromAssemblies(domain);
+                    // cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
+                })
+            .AddAutoMapper(cfg => cfg.AddMaps(domain))
+            .AddValidatorsFromAssemblies(domain);
+    }
+}

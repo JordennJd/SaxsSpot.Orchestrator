@@ -1,0 +1,70 @@
+services:
+  kafka:
+    image: 'bitnami/kafka:latest'
+    container_name: kafka
+    ports:
+      - '9092:9092'
+      - '9093:9093'
+    environment:
+      KAFKA_CFG_NODE_ID: 0
+      KAFKA_CFG_PROCESS_ROLES: 'broker,controller'
+      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: '0@kafka:9093'
+
+      KAFKA_CFG_LISTENERS: 'BROKER://:9092,BROKER_INTERNAL://:29092,CONTROLLER://:9093'
+      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: 'BROKER:PLAINTEXT,BROKER_INTERNAL:PLAINTEXT,CONTROLLER:PLAINTEXT'
+      KAFKA_CFG_ADVERTISED_LISTENERS: 'BROKER://localhost:9092,BROKER_INTERNAL://kafka:29092'
+      KAFKA_CFG_INTER_BROKER_LISTENER_NAME: 'BROKER_INTERNAL'
+      KAFKA_CFG_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
+
+      KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE: 'false'
+      KAFKA_CFG_NUM_PARTITIONS: '3'
+      KAFKA_CFG_DEFAULT_REPLICATION_FACTOR: '1'
+
+      KAFKA_JMX_PORT: 9999
+    healthcheck:
+      test: [ "CMD", "kafka-broker-api-versions.sh", "--bootstrap-server", "kafka:29092" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  kafka-setup:
+    image: 'bitnami/kafka:latest'
+    depends_on:
+      kafka:
+        condition: service_healthy
+    environment:
+      KAFKA_BROKER: 'kafka:29092'
+      TOPICS: 'scattering.parallelepiped.calculate:1:1, scattering.parallelepiped.calculate.result:1:1'
+    command: >
+      bash -c "
+        echo 'Waiting for Kafka to be ready...';
+        until kafka-topics.sh --bootstrap-server $${KAFKA_BROKER} --list; do sleep 1; done;
+        echo 'Creating topics...';
+        IFS=',' read -ra TOPIC_ARRAY <<< \"$${TOPICS}\";
+        for topic in \"$${TOPIC_ARRAY[@]}\"; do
+          IFS=':' read -ra TOPIC_CONFIG <<< \"$${topic}\";
+          kafka-topics.sh --bootstrap-server $${KAFKA_BROKER} \\
+            --create \\
+            --topic $${TOPIC_CONFIG[0]} \\
+            --partitions $${TOPIC_CONFIG[1]} \\
+            --replication-factor $${TOPIC_CONFIG[2]} \\
+            --if-not-exists;
+          echo \"Created topic $${TOPIC_CONFIG[0]} with $${TOPIC_CONFIG[1]} partitions and $${TOPIC_CONFIG[2]} replicas\";
+        done;
+        echo 'All topics created';
+        sleep infinity;
+      "
+
+  kafka-ui:
+    image: 'provectuslabs/kafka-ui:latest'
+    container_name: kafka-ui
+    depends_on:
+      kafka:
+        condition: service_healthy
+    ports:
+      - '8085:8080'
+    environment:
+      KAFKA_CLUSTERS_0_NAME: 'local'
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: 'kafka:29092'
+      KAFKA_CLUSTERS_0_ZOOKEEPER: 'zookeeper:2181'
+      DYNAMIC_CONFIG_ENABLED: 'true'

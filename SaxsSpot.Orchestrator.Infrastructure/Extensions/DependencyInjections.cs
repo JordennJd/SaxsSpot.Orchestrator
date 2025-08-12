@@ -7,9 +7,10 @@ namespace SaxsSpot.Orchestrator.Infrastructure.Extensions;
 
 public static class DependencyInjections
 {
-    public static IServiceCollection AddNanoSystemServiceStorage(this IServiceCollection services)
+    public static IServiceCollection AddCalculationServiceStorage(this IServiceCollection services)
     {
         return services.AddDbContext<CalculationDbContext>()
-            .AddScoped<ICalculationStorage, CalculationStorage>();
+            .AddScoped<ICalculationStorage, CalculationStorage>()
+            .AddScoped<ICalculateObjectStorage, CalculateObjectStorage>();
     }
 }

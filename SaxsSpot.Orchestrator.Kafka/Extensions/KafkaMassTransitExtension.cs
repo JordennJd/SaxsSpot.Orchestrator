@@ -10,8 +10,9 @@ public static class KafkaMassTransitExtensions
 {
     public static IServiceCollection AddKafkaEventing(
         this IServiceCollection services,
-        KafkaConfiguration configuration)
+        IConfiguration configuration)
     {
+        var kafkaConfiguration = configuration.GetSection("kafka").Get<KafkaConfiguration>();
         services.AddMassTransit(x =>
         {
             x.UsingInMemory((context, cfg) =>
@@ -23,14 +24,14 @@ public static class KafkaMassTransitExtensions
             {
                 rider.AddConsumer<CalculationResultConsumer>();
 
-                rider.AddProducer<string, CalculateScatteringRequest>(configuration.Topic);
+                rider.AddProducer<CalculateScatteringRequest>(kafkaConfiguration.Topic);
 
                 rider.UsingKafka((context, k) =>
                 {
-                    k.Host(configuration.Brokers);
+                    k.Host(kafkaConfiguration.Brokers);
 
                     // Настройка TopicEndpoint
-                    k.TopicEndpoint<ScatteringResult>(configuration.ResultTopic, configuration.Group, e =>
+                    k.TopicEndpoint<ScatteringResult>(kafkaConfiguration.ResultTopic, kafkaConfiguration.Group, e =>
                     {
                         e.ConfigureConsumer<CalculationResultConsumer>(context);
                         e.CreateIfMissing();

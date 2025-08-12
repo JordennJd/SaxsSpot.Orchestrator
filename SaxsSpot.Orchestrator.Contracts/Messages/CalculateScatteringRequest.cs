@@ -4,26 +4,22 @@ using SaxsSpot.Orchestrator.Contracts.Models;
 namespace SaxsSpot.Orchestrator.Contracts.Messages;
 
 /// <summary>
-/// request for calculation worker
+/// Request for calculation worker
 /// </summary>
-/// <param name="RequestId"></param>
-/// <param name="QVectorSpaceParameters"></param>
-/// <param name="ThetaVectorSpaceParameters"></param>
-/// <param name="PhiVectorSpaceParameters"></param>
-/// <param name="SystemId"></param>
-public record CalculateScatteringRequest(
-    [property: JsonPropertyName("requestId")]
-    string RequestId,
+public record CalculateScatteringRequest
+{
+    [JsonPropertyName("requestId")]
+    public string? RequestId { get; set; }
 
-    [property: JsonPropertyName("qVectorSpaceParameters")]
-    SpaceParameters QVectorSpaceParameters,
+    [JsonPropertyName("qVectorSpaceParameters")]
+    public SpaceParameters QVectorSpaceParameters { get; init; }
 
-    [property: JsonPropertyName("thetaVectorSpaceParameters")]
-    SpaceParameters ThetaVectorSpaceParameters,
+    [JsonPropertyName("thetaVectorSpaceParameters")]
+    public SpaceParameters ThetaVectorSpaceParameters { get; init; }
 
-    [property: JsonPropertyName("phiVectorSpaceParameters")]
-    SpaceParameters PhiVectorSpaceParameters,
+    [JsonPropertyName("phiVectorSpaceParameters")]
+    public SpaceParameters PhiVectorSpaceParameters { get; init; }
 
-    [property: JsonPropertyName("systemId")]
-    Guid SystemId
-);
+    [JsonPropertyName("systemId")]
+    public Guid SystemId { get; init; }
+}

@@ -28,6 +28,9 @@ public class Calculation
 
     [Column("q_space_method")]
     public int QSpaceMethod { get; set; }
+    
+    [Column("q_scale_method")]
+    public int QScaleMethod { get; set; }
 
     [Column("q_space_parameter")]
     public float QSpaceParameter { get; set; }
@@ -40,6 +43,9 @@ public class Calculation
 
     [Column("phi_space_method")]
     public int? PhiSpaceMethod { get; set; }
+    
+    [Column("phi_scale_method")]
+    public int? PhiScaleMethod { get; set; }
 
     [Column("phi_space_parameter")]
     public float? PhiSpaceParameter { get; set; }
@@ -53,6 +59,9 @@ public class Calculation
     [Column("theta_space_method")]
     public int? ThetaSpaceMethod { get; set; }
 
+    [Column("theta_scale_method")]
+    public int? ThetaScaleMethod { get; set; }
+    
     [Column("theta_space_parameter")]
     public float? ThetaSpaceParameter { get; set; }
 

@@ -1,13 +1,15 @@
+using SaxsSpot.Orchestrator.Contracts.Enums;
+
 namespace SaxsSpot.Orchestrator.Contracts.Models;
 
 using System.Text.Json.Serialization;
 
 public record SpaceParameters(
     [property: JsonPropertyName("spaceMethod")]
-    SpaceMethods SpaceMethod,
+    SpaceMethod SpaceMethod,
 
     [property: JsonPropertyName("scaleMethod")]
-    ScaleMethods ScaleMethod,
+    ScaleMethod ScaleMethod,
 
     [property: JsonPropertyName("spaceParameter")]
     float SpaceParameter,

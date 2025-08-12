@@ -1,18 +1,19 @@
-using System.Text.Json.Serialization;
+using Microsoft.Extensions.Configuration;
 
 namespace SaxsSpot.Orchestrator.Kafka;
 
 public record KafkaConfiguration
 {
-    [JsonPropertyName("brokers")]
+    [ConfigurationKeyName("brokers")]
     public List<string> Brokers { get; set; } = new();
 
-    [JsonPropertyName("group")]
+    [ConfigurationKeyName("group")]
     public string Group { get; set; } = string.Empty;
 
-    [JsonPropertyName("topic")]
+    [ConfigurationKeyName("result-topic")]
+    public string ResultTopic { get; set; } = string.Empty;
+    
+    [ConfigurationKeyName("topic")]
     public string Topic { get; set; } = string.Empty;
 
-    [JsonPropertyName("result-topic")]
-    public string ResultTopic { get; set; } = string.Empty;
 }
