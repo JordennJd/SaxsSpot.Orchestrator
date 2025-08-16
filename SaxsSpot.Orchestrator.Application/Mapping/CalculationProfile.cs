@@ -1,5 +1,7 @@
 using AutoMapper;
+using Gridify;
 using SaxsSpot.Orchestrator.Contracts.Messages;
+using SaxsSpot.Orchestrator.Contracts.Models;
 using SaxsSpot.Orchestrator.Domain.Entities;
 
 namespace SaxsSpot.Orchestrator.Application.Mapping;
@@ -31,5 +33,8 @@ public class CalculationProfile : Profile
             .ForMember(dest => dest.InputDate, opt => opt.MapFrom(_ => DateTime.UtcNow))
             .ForMember(dest => dest.CalculateStart, opt => opt.Ignore())
             .ForMember(dest => dest.CalculateEnd, opt => opt.Ignore());
-    }   
+        
+        CreateMap<Calculation, CalculationDto>();
+        CreateMap<Paging<Calculation>, Paging<CalculationDto>>();
+    }
 }

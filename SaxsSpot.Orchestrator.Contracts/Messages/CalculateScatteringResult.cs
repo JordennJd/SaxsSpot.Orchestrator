@@ -13,6 +13,12 @@ public record ScatteringResult
 
     [JsonPropertyName("result")]
     public List<IntensityResult> Result { get; set; } = new();
+    
+    [JsonPropertyName("start")]
+    public DateTime CalculateStart { get; set; }
+    
+    [JsonPropertyName("end")]
+    public DateTime CalculateEnd { get; set; }
 }
 
 public record IntensityResult

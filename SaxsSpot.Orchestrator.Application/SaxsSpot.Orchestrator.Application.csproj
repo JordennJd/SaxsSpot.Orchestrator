@@ -23,8 +23,4 @@
       <ProjectReference Include="..\SaxsSpot.Orchestrator.Domain\SaxsSpot.Orchestrator.Domain.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Features\Calculation\Quries\" />
-    </ItemGroup>
-
 </Project>

@@ -22,8 +22,8 @@ CREATE TABLE calculation (
       theta_space_method INT NULL,
       theta_scale_method INT NULL,
       theta_space_parameter FLOAT NULL,
-      input_date DATE NOT NULL,
-      calculate_start DATE NOT NULL,
-      calculate_end DATE NOT NULL,
+      input_date timestamp NOT NULL,
+      calculate_start timestamp NOT NULL,
+      calculate_end timestamp NOT NULL,
       PRIMARY KEY (id)
 );
