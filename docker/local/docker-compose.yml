@@ -25,9 +25,9 @@ services:
       MINIO_ROOT_PASSWORD: s3secretkey
     command: server /data --console-address ":9001"
   
-  db-init:
+  db-init-orchestrator:
     image: postgres:latest
-    container_name: db_initializer
+    container_name: db-init-orchestrator
     depends_on:
       db:
         condition: service_healthy
@@ -37,13 +37,12 @@ services:
       bash -c "until pg_isready -h db -U postgres; do sleep 1; done &&
                psql -h db -U postgres -d saxs -c 'CREATE SCHEMA IF NOT EXISTS saxs;'"
   
-  liquibase:
+  liquibase-orchestrator:
     build:
       context: ../../SaxsSpot.Orchestrator.Database
       dockerfile: Dockerfile
-    container_name: liquibase_migrator
     depends_on:
       db:
         condition: service_healthy
-      db-init:
+      db-init-orchestrator:
         condition: service_completed_successfully

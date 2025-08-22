@@ -24,7 +24,7 @@ public class CalculationProfile : Profile
             .ForMember(dest => dest.PhiVectorTo, opt => opt.MapFrom(src => src.PhiVectorSpaceParameters.End))
             .ForMember(dest => dest.PhiSpaceMethod, opt => opt.MapFrom(src => src.PhiVectorSpaceParameters.SpaceMethod))
             .ForMember(dest => dest.PhiScaleMethod, opt => opt.MapFrom(src => src.PhiVectorSpaceParameters.ScaleMethod))
-            .ForMember(dest => dest.PhiSpaceParameter, opt => opt.MapFrom(src => (int)src.PhiVectorSpaceParameters.SpaceParameter))
+            .ForMember(dest => dest.PhiSpaceParameter, opt => opt.MapFrom(src => src.PhiVectorSpaceParameters.SpaceParameter))
             .ForMember(dest => dest.ThetaVectorFrom, opt => opt.MapFrom(src => src.ThetaVectorSpaceParameters.Start))
             .ForMember(dest => dest.ThetaVectorTo, opt => opt.MapFrom(src => src.ThetaVectorSpaceParameters.End))
             .ForMember(dest => dest.ThetaSpaceMethod, opt => opt.MapFrom(src => (int)src.ThetaVectorSpaceParameters.SpaceMethod))
