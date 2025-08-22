@@ -8,6 +8,9 @@ namespace SaxsSpot.Orchestrator.Application.Features.Calculation.Command.RunCalc
 
 public record RunSeriesCalculationCommand : IRequest<IResult<Guid>>
 {
+    [JsonPropertyName("requestId")]
+    public string? RequestId { get; set; }
+
     [JsonPropertyName("qVectorSpaceParameters")]
     public SpaceParameters QVectorSpaceParameters { get; init; }
 
@@ -17,6 +20,6 @@ public record RunSeriesCalculationCommand : IRequest<IResult<Guid>>
     [JsonPropertyName("phiVectorSpaceParameters")]
     public SpaceParameters PhiVectorSpaceParameters { get; init; }
 
-    [JsonPropertyName("seriesId")]
-    public Guid SeriesId { get; init; }
+    [JsonPropertyName("systemId")]
+    public Guid SystemId { get; init; }
 }

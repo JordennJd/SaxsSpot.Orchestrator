@@ -26,14 +26,16 @@ public class SaveCalculationHandler(ILogger<SaveCalculationHandler> logger, IMap
             calculation.ObjectId = objectId;
             await storage.UpdateOrInsertAsync(calculation);
             logger.LogInformation($"Calculation saved to DB with operationID: {operationId}");
+            
             await jobServiceClient.CompleteJobAsync(new Shared.ProgressTrackerClient.Contracts.Models.
                 CompleteJobQuery(command.Result.Request.RequestId, "Calculation complete successfully.", false));
+            
             return FluentResults.Result.Ok(calculation.Id);
         }
         catch (Exception e)
         {
             logger.LogCritical($"Error saving calculation with Id: {operationId}, Exception: {e.Message}");
-            throw;
+            return FluentResults.Result.Fail<Guid>($"Error saving calculation with Id: {operationId}");
         }
     }
 }
