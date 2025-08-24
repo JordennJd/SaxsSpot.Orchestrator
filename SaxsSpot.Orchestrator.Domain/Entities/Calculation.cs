@@ -21,10 +21,10 @@ public class Calculation
     public Guid UserId { get; set; }
 
     [Column("q_vector_from")]
-    public float QVectorFrom { get; set; }
+    public double QVectorFrom { get; set; }
 
     [Column("q_vector_to")]
-    public float QVectorTo { get; set; }
+    public double QVectorTo { get; set; }
 
     [Column("q_space_method")]
     public int QSpaceMethod { get; set; }
@@ -33,13 +33,13 @@ public class Calculation
     public int QScaleMethod { get; set; }
 
     [Column("q_space_parameter")]
-    public float QSpaceParameter { get; set; }
+    public double QSpaceParameter { get; set; }
 
     [Column("phi_vector_from")]
-    public float? PhiVectorFrom { get; set; }
+    public double? PhiVectorFrom { get; set; }
 
     [Column("phi_vector_to")]
-    public float? PhiVectorTo { get; set; }
+    public double? PhiVectorTo { get; set; }
 
     [Column("phi_space_method")]
     public int? PhiSpaceMethod { get; set; }
@@ -48,13 +48,13 @@ public class Calculation
     public int? PhiScaleMethod { get; set; }
 
     [Column("phi_space_parameter")]
-    public float? PhiSpaceParameter { get; set; }
+    public double? PhiSpaceParameter { get; set; }
 
     [Column("theta_vector_from")]
-    public float? ThetaVectorFrom { get; set; }
+    public double? ThetaVectorFrom { get; set; }
 
     [Column("theta_vector_to")]
-    public float? ThetaVectorTo { get; set; }
+    public double? ThetaVectorTo { get; set; }
 
     [Column("theta_space_method")]
     public int? ThetaSpaceMethod { get; set; }
@@ -63,7 +63,7 @@ public class Calculation
     public int? ThetaScaleMethod { get; set; }
     
     [Column("theta_space_parameter")]
-    public float? ThetaSpaceParameter { get; set; }
+    public double? ThetaSpaceParameter { get; set; }
 
     [Column("input_date")]
     public DateTime InputDate { get; set; }

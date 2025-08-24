@@ -12,11 +12,11 @@ public record SpaceParameters(
     ScaleMethod ScaleMethod,
 
     [property: JsonPropertyName("spaceParameter")]
-    float SpaceParameter,
+    double SpaceParameter,
 
     [property: JsonPropertyName("start")]
-    float Start,
+    double Start,
 
     [property: JsonPropertyName("end")]
-    float End
+    double End
 );

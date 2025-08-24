@@ -35,7 +35,7 @@ public class CalculateObjectStorage : CommonObjectStorage<IntensityResult>, ICal
         {
             var splitted = str.Split(' ');
 
-            yield return new IntensityResult(float.Parse(splitted[0]), float.Parse(splitted[1]));
+            yield return new IntensityResult(double.Parse(splitted[0]), double.Parse(splitted[1]));
         }
     }
 }

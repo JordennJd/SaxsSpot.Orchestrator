@@ -5,15 +5,15 @@ namespace SaxsSpot.Orchestrator.Domain.Entities;
 /// </summary>
 public class IntensityResult
 {
-    public IntensityResult(float qVector, float intensity)
+    public IntensityResult(double qVector, double intensity)
     {
         QVector = qVector;
         Intensity = intensity;
     }
     
-    public float QVector { get; set; }
+    public double QVector { get; set; }
 
-    public float Intensity { get; set; }
+    public double Intensity { get; set; }
 
     public override string ToString()
     {

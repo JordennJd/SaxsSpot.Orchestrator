@@ -24,8 +24,8 @@ public record ScatteringResult
 public record IntensityResult
 {
     [JsonPropertyName("qVector")]
-    public float QVector { get; set; }
+    public double QVector { get; set; }
 
     [JsonPropertyName("intensity")]
-    public float Intensity { get; set; }
+    public double Intensity { get; set; }
 }

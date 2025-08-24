@@ -1,3 +1,4 @@
+using System.Text.Json;
 using FluentResults;
 using MassTransit;
 using MediatR;
@@ -22,7 +23,7 @@ public class RunCalculationHandler(ITopicProducer<CalculateScatteringRequest> pr
             await producer.Produce(request, cancellationToken);
             await jobServiceClient.CreateJobAsync
             (new JobModels.CreateJobQuery(operationId.ToString(),
-                "calculate-scattering", "calculate scatteing message produced by the SaxsSpot", ""));
+                "calculate-scattering", "calculate scatteing message produced by the SaxsSpot", JsonSerializer.Serialize(request)));
 
             return FluentResults.Result.Ok(operationId);
         }

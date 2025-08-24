@@ -14,8 +14,8 @@ public class PlotRequest
 public class Dataset
 {
     public string id { get; set; }
-    public float[] x { get; set; }
-    public float[] y { get; set; }
+    public double[] x { get; set; }
+    public double[] y { get; set; }
 	
     public void SortByX()
     {
