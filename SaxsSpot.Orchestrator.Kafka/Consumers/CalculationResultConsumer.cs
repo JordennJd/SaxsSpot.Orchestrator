@@ -1,3 +1,4 @@
+using Confluent.Kafka;
 using MassTransit;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -25,7 +26,7 @@ public class CalculationResultConsumer(IMediator mediator, ILogger<CalculationRe
         {
             logger.LogError(ex, "Error occurred while processing scattering result with ID: {ResultId}", 
                 context.Message.Request.RequestId);
-            throw; // Re-throw to allow message retry if configured
+            throw;
         }
     }
 }

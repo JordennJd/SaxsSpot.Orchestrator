@@ -10,6 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Services.AddControllers();
+builder.Logging.AddConsole();
 var corsSettings = builder.Configuration.GetSection("Cors").Get<CorsSettings>();
 builder.Services.Configure<KafkaConfiguration>(builder.Configuration.GetSection("kafka"));
 builder.Services.AddCors(options =>
