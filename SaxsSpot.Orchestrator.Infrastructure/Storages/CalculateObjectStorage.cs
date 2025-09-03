@@ -24,7 +24,8 @@ public class CalculateObjectStorage : CommonObjectStorage<IntensityResult>, ICal
         }
 
         streamWriter.Flush();
-        return stream;    }
+        return stream;    
+    }
 
     protected override IEnumerable<IntensityResult> FromStream(Stream data)
     {

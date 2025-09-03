@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using SaxsSpot.NanoSystemGeneration.Contracts.Models.Enums;
 using SaxsSpot.Orchestrator.Contracts.Models;
 
 namespace SaxsSpot.Orchestrator.Contracts.Messages;
@@ -22,4 +23,7 @@ public record CalculateScatteringRequest
 
     [JsonPropertyName("systemId")]
     public Guid SystemId { get; init; }
+    
+    [JsonPropertyName("particleKind")]
+    public ParticleKind ParticleKind { get; init; } 
 }

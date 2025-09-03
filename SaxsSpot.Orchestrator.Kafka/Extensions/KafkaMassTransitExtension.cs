@@ -30,7 +30,6 @@ public static class KafkaMassTransitExtensions
                 {
                     k.Host(kafkaConfiguration.Brokers);
 
-                    // Настройка TopicEndpoint
                     k.TopicEndpoint<ScatteringResult>(kafkaConfiguration.ResultTopic, kafkaConfiguration.Group, e =>
                     {
                         e.ConfigureConsumer<CalculationResultConsumer>(context);

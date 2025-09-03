@@ -19,7 +19,7 @@ public class RunCalculationHandler(ITopicProducer<CalculateScatteringRequest> pr
         try
         {
             request.RequestId = operationId.ToString();
-
+            
             await producer.Produce(request, cancellationToken);
             await jobServiceClient.CreateJobAsync
             (new JobModels.CreateJobQuery(operationId.ToString(),

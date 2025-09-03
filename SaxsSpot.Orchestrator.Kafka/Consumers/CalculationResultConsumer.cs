@@ -18,7 +18,11 @@ public class CalculationResultConsumer(IMediator mediator, ILogger<CalculationRe
         
         try
         {
-            await mediator.Send(new SaveCalculationCommand(context.Message));
+            var result = await mediator.Send(new SaveCalculationCommand(context.Message));
+            if (result.IsFailed)
+            {
+                throw new InvalidOperationException($"Failed to save scattering result for {context.Message.Request.RequestId}");
+            }
             logger.LogInformation("Successfully processed and saved scattering result with ID: {ResultId}", 
                 context.Message.Request.RequestId);
         }
