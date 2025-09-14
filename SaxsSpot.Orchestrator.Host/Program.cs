@@ -11,6 +11,13 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Logging.AddConsole();
+Console.WriteLine($"APP_ENV: {Environment.GetEnvironmentVariable("APP_ENV")}");
+builder.Configuration
+    .AddJsonFile("appsettings.json", true, true)
+    .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("APP_ENV") ?? "Development"}.json",
+        true, true)
+    .AddEnvironmentVariables();
+
 var corsSettings = builder.Configuration.GetSection("Cors").Get<CorsSettings>();
 builder.Services.Configure<KafkaConfiguration>(builder.Configuration.GetSection("kafka"));
 builder.Services.AddCors(options =>
@@ -32,10 +39,6 @@ builder.Services.AddCors(options =>
     });
 });
 
-builder.Configuration
-    .AddJsonFile("appsettings.json", true, true)
-    .AddJsonFile("appsettings.Development.json", true, true)
-    .AddEnvironmentVariables();
 builder.Services.AddApplication(builder.Configuration);
 builder.Services.AddCalculationServiceStorage();
 builder.Services.AddJobServiceClient(builder.Configuration);

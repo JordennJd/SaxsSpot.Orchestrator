@@ -9,3 +9,4 @@ USER root
 ADD https://jdbc.postgresql.org/download/postgresql-42.2.20.jar /liquibase/lib/postgresql-42.2.20.jar
 
 ENTRYPOINT ["liquibase", "update"]
+#docker build . -t "jordenndev/saxsspot-liquibase-orchestrator"

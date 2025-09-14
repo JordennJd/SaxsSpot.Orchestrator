@@ -5,6 +5,7 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <RootNamespace>SaxsSpot.Orchestrator</RootNamespace>
+        <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     </PropertyGroup>
 
     <ItemGroup>
@@ -20,6 +21,12 @@
       <ProjectReference Include="..\SaxsSpot.Orchestrator.Domain\SaxsSpot.Orchestrator.Domain.csproj" />
       <ProjectReference Include="..\SaxsSpot.Orchestrator.Infrastructure\SaxsSpot.Orchestrator.Infrastructure.csproj" />
       <ProjectReference Include="..\SaxsSpot.Orchestrator.Kafka\SaxsSpot.Orchestrator.Kafka.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Include="..\.dockerignore">
+        <Link>.dockerignore</Link>
+      </Content>
     </ItemGroup>
 
 </Project>
