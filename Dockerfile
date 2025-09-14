@@ -11,7 +11,7 @@ COPY Nuget.Config .
 
 ARG CRT_PATH
 
-COPY "$CRT_PATH" /usr/local/share/ca-certificates/devspot-rootCA.crt
+COPY local.devspot.tech.pem /usr/local/share/ca-certificates/devspot-rootCA.crt
 RUN update-ca-certificates
 
 COPY ["SaxsSpot.Orchestrator.Host/SaxsSpot.Orchestrator.Host.csproj", "SaxsSpot.Orchestrator.Host/"]
