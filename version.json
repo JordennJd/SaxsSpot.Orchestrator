@@ -1,0 +1,6 @@
+{
+  "version": "1.0.0",
+  "dockerImage": "jordenndev/saxsspot-orchestrator-service",
+  "buildNumber": 0,
+  "description": "ASP.NET Application"
+}
