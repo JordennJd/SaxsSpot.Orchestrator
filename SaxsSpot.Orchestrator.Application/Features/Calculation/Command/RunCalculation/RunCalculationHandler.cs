@@ -20,16 +20,19 @@ public class RunCalculationHandler(ITopicProducer<CalculateScatteringRequest> pr
         {
             request.RequestId = operationId.ToString();
             
-            await producer.Produce(request, cancellationToken);
             await jobServiceClient.CreateJobAsync
             (new JobModels.CreateJobQuery(operationId.ToString(),
                 "calculate-scattering", "calculate scatteing message produced by the SaxsSpot", JsonSerializer.Serialize(request)));
+            await producer.Produce(request, cancellationToken);
+            logger.LogInformation("Starting calculation message produced with id {id}", operationId);
 
             return FluentResults.Result.Ok(operationId);
         }
         catch (Exception ex)
         {
-            logger.LogInformation("Error during calculation start with id {id} error: {ex}", operationId, ex.ToString());
+            await jobServiceClient.CompleteJobAsync(new JobModels.CompleteJobQuery(operationId.ToString(),
+                $"calculate scatteing message didnt produce with error: {ex.Message}", IsFailed: true));
+            logger.LogError("Error during calculation start with id {id} error: {ex}", operationId, ex.ToString());
             return FluentResults.Result.Fail<Guid>($"Error during calculation start");
         }
     }

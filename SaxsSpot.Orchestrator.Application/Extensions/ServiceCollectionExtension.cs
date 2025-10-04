@@ -2,6 +2,7 @@ using FluentValidation;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using SaxsSpot.NanoSystemService.Sdk.Extensions;
 
 namespace SaxsSpot.Orchestrator.Application.Extensions;
 
@@ -12,7 +13,6 @@ public static class ServiceCollectionExtension
         var domain = AppDomain.CurrentDomain.GetAssemblies();
         
         return services
-            // .AddScoped<INanoSystemService, Services.NanoSystemService>()
             .AddLogging(cfg => cfg.AddConsole())
             .AddMediatR(cfg =>
                 {

@@ -1,14 +1,14 @@
-using FluentResults;
 using Gridify;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using SaxsSpot.Orchestrator.Application.Features.Calculation.Command.RunCalculation;
+using SaxsSpot.Orchestrator.Application.Features.Calculation.Command.RunSeriesCalculation;
 using SaxsSpot.Orchestrator.Application.Features.Calculation.Queries.GetCalcualtionList;
 using SaxsSpot.Orchestrator.Application.Features.Calculation.Queries.GetCalculation;
 using SaxsSpot.Orchestrator.Application.Features.Calculation.Queries.GetCalculationListByNanosystemId;
 using SaxsSpot.Orchestrator.Application.Features.Calculation.Queries.PlotChart;
-using SaxsSpot.Orchestrator.Contracts.Models;
-using SaxsSpot.Orchestrator.Result;
+using SaxsSpot.Shared.Contracts.Models;
+
 namespace SaxsSpot.Orchestrator.Controllers;
 
 [ApiController]
@@ -19,7 +19,14 @@ public class CalculationController(IMediator mediator) : Controller
     public async Task<IActionResult> RunGeneration([FromBody] RunCalculationCommand dto)
     {
         var result = await mediator.Send(dto);
-        return Ok(result.ValueOrDefault);
+        return Ok(result.ToResultDto());
+    }
+    
+    [HttpPost("run-series-calculation")]
+    public async Task<IActionResult> RunSeriesGeneration([FromBody] RunSeriesCalculationCommand dto)
+    {
+        var result = await mediator.Send(dto);
+        return Ok(result.ToResultDto());
     }
     
     [HttpGet("list")]

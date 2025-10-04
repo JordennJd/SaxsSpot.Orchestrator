@@ -40,7 +40,9 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddApplication(builder.Configuration);
-builder.Services.AddCalculationServiceStorage();
+builder.Services.AddCalculationServiceStorage()
+    .AddIntegration(builder.Configuration);
+
 builder.Services.AddJobServiceClient(builder.Configuration);
 builder.Services.AddAuthenticator(builder.Configuration);
 var conf = builder.Configuration;

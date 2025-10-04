@@ -13,6 +13,8 @@ public static class KafkaMassTransitExtensions
         IConfiguration configuration)
     {
         var kafkaConfiguration = configuration.GetSection("kafka").Get<KafkaConfiguration>();
+        ArgumentNullException.ThrowIfNull(kafkaConfiguration);
+        
         services.AddMassTransit(x =>
         {
             x.UsingInMemory((context, cfg) =>
