@@ -2,6 +2,7 @@ using SaxsSpot.Orchestrator.Application.Extensions;
 using SaxsSpot.Orchestrator.Infrastructure.Extensions;
 using SaxsSpot.Orchestrator.Kafka;
 using SaxsSpot.Orchestrator.Kafka.Extensions;
+using SaxsSpot.Orchestrator.Settings;
 using SaxsSpot.Shared.Authenticator.Extensions;
 using SaxsSpot.Shared.ProgressTrackerClient.Extensions;
 
@@ -63,10 +64,3 @@ app.MapControllers();
 
 app.Run();
 
-public class CorsSettings
-{
-    public string[] AllowedOrigins { get; set; }
-    public string[] AllowedMethods { get; set; }
-    public string[] AllowedHeaders { get; set; }
-    public bool AllowCredentials { get; set; }
-}
