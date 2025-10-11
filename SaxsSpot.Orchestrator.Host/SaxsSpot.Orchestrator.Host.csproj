@@ -10,10 +10,10 @@
 
     <ItemGroup>
         <PackageReference Include="Gridify.EntityFramework" Version="2.16.3" />
-        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.4"/>
-        <PackageReference Include="SaxsSpot.Shared.Authenticator" Version="1.2.0" />
-        <PackageReference Include="SaxsSpot.Shared.Contracts" Version="1.0.1" />
-        <PackageReference Include="SaxsSpot.Shared.ProgressTrackerClient" Version="1.2.0" />
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.4" />
+        <PackageReference Include="SaxsSpot.Shared.Authenticator" Version="1.2.1" />
+        <PackageReference Include="SaxsSpot.Shared.Contracts" Version="1.2.1" />
+        <PackageReference Include="SaxsSpot.Shared.ProgressTrackerClient" Version="1.2.1" />
     </ItemGroup>
 
     <ItemGroup>
