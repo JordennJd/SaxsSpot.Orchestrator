@@ -14,9 +14,9 @@
         <PackageReference Include="MassTransit.Abstractions" Version="8.5.2" />
         <PackageReference Include="MassTransit.Kafka" Version="8.5.2" />
         <PackageReference Include="MediatR" Version="13.0.0" />
-        <PackageReference Include="SaxsSpot.Core.Contracts" Version="1.0.19" />
+        <PackageReference Include="SaxsSpot.Core.Contracts" Version="1.0.21" />
         <PackageReference Include="SaxsSpot.NanoSystemService.Sdk" Version="1.1.0" />
-        <PackageReference Include="SaxsSpot.Shared.Contracts" Version="1.0.1" />
+        <PackageReference Include="SaxsSpot.Shared.Contracts" Version="1.2.1" />
         <PackageReference Include="SaxsSpot.Shared.ProgressTrackerClient" Version="1.2.0" />
     </ItemGroup>
 
