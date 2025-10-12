@@ -32,7 +32,7 @@ namespace SaxsSpot.Orchestrator.Application.Features.Calculation.Queries.PlotCha
 		
             foreach(var calculation in calculations)
             {
-                var dataset = await objectStorage.Load(calculation.ObjectId).ToListAsync();
+                var dataset = await objectStorage.Load(calculation.ObjectId, cancellationToken).ToListAsync(cancellationToken);
 
                 datasets.Add(new Dataset(){x = dataset.Select(x => x.QVector).ToArray(),
                     y = dataset.Select(x => x.Intensity).ToArray(), id = calculation.Id.ToString()});	
@@ -44,9 +44,9 @@ namespace SaxsSpot.Orchestrator.Application.Features.Calculation.Queries.PlotCha
             try
             {
                 var a = JsonSerializer.Serialize(plotRequest);
-                var response = await client.PostAsJsonAsync(configuration.GetValue<string>("chart:uri")+"/plot", plotRequest);
+                var response = await client.PostAsJsonAsync(configuration.GetValue<string>("chart:uri")+"/plot", plotRequest, cancellationToken: cancellationToken);
                 response.EnsureSuccessStatusCode();
-                var htmlContent = await response.Content.ReadAsStringAsync();
+                var htmlContent = await response.Content.ReadAsStringAsync(cancellationToken);
                 return FluentResults.Result.Ok(htmlContent);
             }
             catch (Exception e)
