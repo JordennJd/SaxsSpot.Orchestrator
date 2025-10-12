@@ -1,34 +1,42 @@
 services:
   kafka:
-    image: 'bitnami/kafka:latest'
+    image: 'apache/kafka:3.7.0'
     container_name: kafka
+    hostname: kafka
     ports:
       - '9092:9092'
+      - '29092:29092'
       - '9093:9093'
+      - '9999:9999'
     environment:
-      KAFKA_CFG_NODE_ID: 0
-      KAFKA_CFG_PROCESS_ROLES: 'broker,controller'
-      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: '0@kafka:9093'
-
-      KAFKA_CFG_LISTENERS: 'BROKER://:9092,BROKER_INTERNAL://:29092,CONTROLLER://:9093'
-      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: 'BROKER:PLAINTEXT,BROKER_INTERNAL:PLAINTEXT,CONTROLLER:PLAINTEXT'
-      KAFKA_CFG_ADVERTISED_LISTENERS: 'BROKER://localhost:9092,BROKER_INTERNAL://kafka:29092'
-      KAFKA_CFG_INTER_BROKER_LISTENER_NAME: 'BROKER_INTERNAL'
-      KAFKA_CFG_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
-
-      KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE: 'false'
-      KAFKA_CFG_NUM_PARTITIONS: '3'
-      KAFKA_CFG_DEFAULT_REPLICATION_FACTOR: '1'
-
-      KAFKA_JMX_PORT: 9999
+      # Базовые настройки Kafka
+      KAFKA_BROKER_ID: 0
+      KAFKA_LOG_DIRS: /tmp/kafka-logs
+      
+      # Kraft Configuration
+      KAFKA_KRAFT_CLUSTER_ID: 'MzI5N2ViNTUtN2U2Zi0wMDAwLThiOWItNDU0ZTRkODI4MWU5'
+      KAFKA_NODE_ID: 0
+      KAFKA_PROCESS_ROLES: 'broker,controller'
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '0@kafka:9093'
+      
+      # Listeners Configuration
+      KAFKA_LISTENERS: 'PLAINTEXT://:9092,CONTROLLER://:9093,INTERNAL://:29092'
+      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://localhost:9092,INTERNAL://kafka:29092'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,INTERNAL:PLAINTEXT'
+      KAFKA_INTER_BROKER_LISTENER_NAME: 'INTERNAL'
+      KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
+      
+      # Topic Settings
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'false'
+      KAFKA_NUM_PARTITIONS: 3
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 1
+      KAFKA_MIN_INSYNC_REPLICAS: 1
+      
     healthcheck:
-      test: [ "CMD", "kafka-broker-api-versions.sh", "--bootstrap-server", "kafka:29092" ]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-
+      test: ["CMD", "/opt/kafka/bin/kafka-broker-api-versions.sh", "--bootstrap-server", "localhost:9092"]
+      
   kafka-setup:
-    image: 'bitnami/kafka:latest'
+    image: 'apache/kafka:3.7.0'
     depends_on:
       kafka:
         condition: service_healthy
@@ -38,12 +46,12 @@ services:
     command: >
       bash -c "
         echo 'Waiting for Kafka to be ready...';
-        until kafka-topics.sh --bootstrap-server $${KAFKA_BROKER} --list; do sleep 1; done;
+        until /opt/kafka/bin/kafka-topics.sh --bootstrap-server $${KAFKA_BROKER} --list; do sleep 1; done;
         echo 'Creating topics...';
         IFS=',' read -ra TOPIC_ARRAY <<< \"$${TOPICS}\";
         for topic in \"$${TOPIC_ARRAY[@]}\"; do
           IFS=':' read -ra TOPIC_CONFIG <<< \"$${topic}\";
-          kafka-topics.sh --bootstrap-server $${KAFKA_BROKER} \\
+          /opt/kafka/bin/kafka-topics.sh --bootstrap-server $${KAFKA_BROKER} \\
             --create \\
             --topic $${TOPIC_CONFIG[0]} \\
             --partitions $${TOPIC_CONFIG[1]} \\
