@@ -27,12 +27,12 @@ public class CalculateObjectStorage : CommonObjectStorage<IntensityResult>, ICal
         return stream;    
     }
 
-    protected override IEnumerable<IntensityResult> FromStream(Stream data)
+    protected override async IAsyncEnumerable<IntensityResult> FromStreamAsync(Stream data)
     {
         using var streamReader = new StreamReader(data, leaveOpen: true);
         
         string? str;
-        while ((str = streamReader.ReadLine()) != null)
+        while ((str = await streamReader.ReadLineAsync()) != null)
         {
             var splitted = str.Split(' ');
 
