@@ -3,6 +3,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using SaxsSpot.NanoSystemService.Sdk.Extensions;
+using SaxsSpot.Orchestrator.Application.Interfaces;
+using SaxsSpot.Orchestrator.Application.Services;
 
 namespace SaxsSpot.Orchestrator.Application.Extensions;
 
@@ -14,6 +16,7 @@ public static class ServiceCollectionExtension
         
         return services
             .AddLogging(cfg => cfg.AddConsole())
+            .AddScoped<IChartService, ChartService>()
             .AddMediatR(cfg =>
                 {
                     cfg.RegisterServicesFromAssemblies(domain);

@@ -31,6 +31,7 @@ public static class KafkaMassTransitExtensions
                 rider.UsingKafka((context, k) =>
                 {
                     k.Host(kafkaConfiguration.Brokers);
+                    k.ReconnectBackoff = TimeSpan.FromSeconds(5);
 
                     k.TopicEndpoint<ScatteringResult>(kafkaConfiguration.ResultTopic, kafkaConfiguration.Group, e =>
                     {

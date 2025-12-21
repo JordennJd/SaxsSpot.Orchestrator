@@ -25,9 +25,9 @@ services:
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,INTERNAL:PLAINTEXT'
       KAFKA_INTER_BROKER_LISTENER_NAME: 'INTERNAL'
       KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
-      
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       # Topic Settings
-      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'false'
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
       KAFKA_NUM_PARTITIONS: 3
       KAFKA_DEFAULT_REPLICATION_FACTOR: 1
       KAFKA_MIN_INSYNC_REPLICAS: 1
@@ -48,6 +48,13 @@ services:
         echo 'Waiting for Kafka to be ready...';
         until /opt/kafka/bin/kafka-topics.sh --bootstrap-server $${KAFKA_BROKER} --list; do sleep 1; done;
         echo 'Creating topics...';
+        /opt/kafka/bin/kafka-topics.sh --bootstrap-server $${KAFKA_BROKER} \\
+            --create \\
+            --topic __consumer_offsets \\
+            --partitions 50 \\
+            --replication-factor 1 \\
+            --config cleanup.policy=compact \\
+            --if-not-exists;
         IFS=',' read -ra TOPIC_ARRAY <<< \"$${TOPICS}\";
         for topic in \"$${TOPIC_ARRAY[@]}\"; do
           IFS=':' read -ra TOPIC_CONFIG <<< \"$${topic}\";

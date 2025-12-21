@@ -3,6 +3,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using SaxsSpot.Orchestrator.Application.Features.Calculation.Command.RunCalculation;
 using SaxsSpot.Orchestrator.Application.Features.Calculation.Command.RunSeriesCalculation;
+using SaxsSpot.Orchestrator.Application.Features.Calculation.Queries.BuildChartAnalyse;
 using SaxsSpot.Orchestrator.Application.Features.Calculation.Queries.GetCalcualtionList;
 using SaxsSpot.Orchestrator.Application.Features.Calculation.Queries.GetCalculation;
 using SaxsSpot.Orchestrator.Application.Features.Calculation.Queries.GetCalculationListByNanosystemId;
@@ -64,6 +65,17 @@ public class CalculationController(IMediator mediator) : Controller
     
     [HttpGet("plot")]
     public async Task<IActionResult> BuildChart([FromQuery] PlotChartRequest dto)
+    {
+        var result = await mediator.Send(dto);
+        if (!result.IsSuccess)
+        {
+            return BadRequest(result.ToResultDto());
+        }
+        return Ok(result.ToResultDto());
+    }
+    
+    [HttpGet("plot-analyse")]
+    public async Task<IActionResult> BuildChartAnalyse([FromQuery] BuildChartAnalyseRequest dto)
     {
         var result = await mediator.Send(dto);
         if (!result.IsSuccess)
