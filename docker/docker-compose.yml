@@ -3,7 +3,7 @@ services:
     image: nginx:alpine
     container_name: nginx-proxy
     ports:
-      - "2000:443"
+      - "80:80"
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf
     depends_on:
@@ -16,10 +16,11 @@ services:
     image: jordenndev/saxsspot-web-ui
     ports:
       - "1000:80"
+    volumes:
+      - ./front.env:/app/.env:ro
+
     environment:
-      "VITE_NANOSYSTEM_API_URL": https://devspot.tech/saxsspot/nanosystem/api,
-      "VITE_CALCULATION_API_URL": https://devspot.tech/saxsspot/orchestrator/api,
-      "VITE_JOB_API_URL": https://devspot.tech/saxsspot/tracker,
+      ENV_FILE: docker
     depends_on:
       - tracker-grpc-service
       - chart-service
