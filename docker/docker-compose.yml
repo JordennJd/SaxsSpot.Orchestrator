@@ -93,7 +93,7 @@ services:
                psql -h nanosystem-db -U postgres -d saxs -c 'CREATE SCHEMA IF NOT EXISTS saxs;'"
   
   kafka:
-    image: 'bitnami/kafka:latest'
+    image: 'apache/kafka:3.7.0'
     container_name: kafka
     ports:
       - '9092:9092'
@@ -120,7 +120,7 @@ services:
       timeout: 5s
       retries: 3
   kafka-setup:
-    image: 'bitnami/kafka:latest'
+    image: 'apache/kafka:3.7.0'
     depends_on:
       kafka:
         condition: service_healthy
