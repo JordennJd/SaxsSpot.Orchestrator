@@ -15,5 +15,8 @@ public record KafkaConfiguration
     
     [ConfigurationKeyName("topic")]
     public string Topic { get; set; } = string.Empty;
+    
+    [ConfigurationKeyName("run-generation-topic")]
+    public string RunGenerationTopic { get; set; } = string.Empty;
 
 }
