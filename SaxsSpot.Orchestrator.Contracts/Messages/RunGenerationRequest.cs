@@ -10,6 +10,9 @@ public record RunGenerationRequest
     [JsonPropertyName("operationId")]
     public Guid OperationId { get; set; }
     
+    [JsonPropertyName("seriesId")]
+    public Guid SeriesId { get; set; }
+    
     [JsonPropertyName("parameters")]
     public CommonParticleGenerationParametersDto Parameters { get; init; } = default!;
 }

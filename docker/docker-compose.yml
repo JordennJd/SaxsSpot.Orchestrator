@@ -126,7 +126,7 @@ services:
         condition: service_healthy
     environment:
       KAFKA_BROKER: 'kafka:29092'
-      TOPICS: 'scattering.parallelepiped.calculate:1:1, scattering.parallelepiped.calculate.result:1:1'
+      TOPICS: 'scattering.parallelepiped.calculate:1:1, scattering.parallelepiped.calculate.result:1:1, run-generation-queue:1:1'
     command: >
       bash -c "
         echo 'Waiting for Kafka to be ready...';
