@@ -40,6 +40,8 @@ services:
       retries: 5
     ports:
       - "54321:5432"
+    volumes:
+      - nanosystem-db-data:/var/lib/postgresql/data
 
   orchestrator-db:
     image: postgres:latest
@@ -54,6 +56,8 @@ services:
       retries: 5
     ports:
       - "54322:5432"
+    volumes:
+      - orchestrator-db-data:/var/lib/postgresql/data
 
   tracker-db:
     image: postgres
@@ -75,6 +79,8 @@ services:
       MINIO_ROOT_USER: s3user
       MINIO_ROOT_PASSWORD: s3secretkey
     command: server /data --console-address ":9001"
+    volumes:
+      - minio-data:/data
   
   db-init:
     image: postgres:latest
@@ -114,6 +120,8 @@ services:
       KAFKA_CFG_DEFAULT_REPLICATION_FACTOR: '1'
 
       KAFKA_JMX_PORT: 9999
+    volumes:
+      - kafka-data:/var/lib/kafka/data
     healthcheck:
       test: [ "CMD", "kafka-broker-api-versions.sh", "--bootstrap-server", "kafka:29092" ]
       interval: 10s
@@ -243,5 +251,11 @@ services:
   
   chart-service:
     image: jordenndev/saxsspot-chart-service
+
+volumes:
+  orchestrator-db-data:
+  nanosystem-db-data:
+  minio-data:
+  kafka-data:
 
   

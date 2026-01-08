@@ -14,11 +14,9 @@ public static class DependencyInjections
     public static IServiceCollection AddCalculationServiceStorage(this IServiceCollection services)
     {
         return services.AddDbContext<CalculationDbContext>()
-            .AddDbContext<NanosystemSeriesDbContext>()
             .AddScoped<INanosystemApi, NanosystemApi>()
             .AddScoped<ICalculationStorage, CalculationStorage>()
-            .AddScoped<ICalculateObjectStorage, CalculateObjectStorage>()
-            .AddScoped<INanoSystemSeriesStorage, NanoSystemSeriesStorage>();
+            .AddScoped<ICalculateObjectStorage, CalculateObjectStorage>();
     }
 
     public static IServiceCollection AddIntegration(this IServiceCollection services, IConfiguration configuration)

@@ -3,9 +3,7 @@ using FluentResults;
 using MassTransit;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using SaxsSpot.Orchestrator.Application.Interfaces;
 using SaxsSpot.Orchestrator.Contracts.Messages;
-using SaxsSpot.Orchestrator.Domain.Entities;
 using SaxsSpot.Shared.ProgressTrackerClient.Contracts.Services;
 using JobModels = SaxsSpot.Shared.ProgressTrackerClient.Contracts.Models;
 
@@ -14,7 +12,6 @@ namespace SaxsSpot.Orchestrator.Application.Features.Nanosystem.Command.RunMassG
 public class RunMassGenerationHandler(
     ITopicProducer<RunGenerationRequest> producer,
     IJobServiceClient jobServiceClient,
-    INanoSystemSeriesStorage seriesStorage,
     ILogger<RunMassGenerationHandler> logger) : IRequestHandler<RunMassGenerationCommand, IResult<Guid>>
 {
     public async Task<IResult<Guid>> Handle(RunMassGenerationCommand request, CancellationToken cancellationToken)
@@ -49,38 +46,10 @@ public class RunMassGenerationHandler(
                     $"Main job not started with id {operationId} with error on remote server {startResult.ErrorMessage}");
             }
             
-            // Create nanosystem series
-            var generationParams = request.Parameters.Options;
-            var series = new NanosystemSeries
-            {
-                Id = Guid.NewGuid(),
-                ParticleKind = request.Parameters.NanoSystemsKind,
-                // Count (ParticleCount)
-                ParticleCountFrom = generationParams.Min(x => x.Count),
-                ParticleCountTo = generationParams.Max(x => x.Count),
-                // GlobalSize
-                GlobalSizeFrom = generationParams.Where(x => x.GlobalSize.HasValue).Select(x => x.GlobalSize!.Value).DefaultIfEmpty(0).Min(),
-                GlobalSizeTo = generationParams.Where(x => x.GlobalSize.HasValue).Select(x => x.GlobalSize!.Value).DefaultIfEmpty(0).Max(),
-                // NumericalConcentration
-                NumericalConcentrationFrom = generationParams.Where(x => x.NumericalConcentration.HasValue).Select(x => x.NumericalConcentration!.Value).DefaultIfEmpty(0).Min(),
-                NumericalConcentrationTo = generationParams.Where(x => x.NumericalConcentration.HasValue).Select(x => x.NumericalConcentration!.Value).DefaultIfEmpty(0).Max(),
-                // MinSize / MaxSize
-                MinParticleSizeFrom = generationParams.Min(x => x.MinSize),
-                MinParticleSizeTo = generationParams.Max(x => x.MinSize),
-                MaxParticleSizeFrom = generationParams.Min(x => x.MaxSize),
-                MaxParticleSizeTo = generationParams.Max(x => x.MaxSize),
-                // Excess
-                ExcessFrom = generationParams.Min(x => x.Excess),
-                ExcessTo = generationParams.Max(x => x.Excess),
-                // K
-                KFrom = generationParams.Min(x => x.K),
-                KTo = generationParams.Max(x => x.K),
-                // Theta
-                ThetaFrom = generationParams.Min(x => x.Theta),
-                ThetaTo = generationParams.Max(x => x.Theta),
-            };
-            await seriesStorage.UpdateOrInsertAsync(series);
-            logger.LogInformation("Created nanosystem series with id {SeriesId}", series.Id);
+            // Generate series ID that will be used for all messages in this mass generation
+            // Series will be created/updated in NanoSystemService when processing messages
+            var seriesId = Guid.NewGuid();
+            logger.LogInformation("Using series id {SeriesId} for mass generation", seriesId);
             
             // Send each option as a separate message to Kafka and create child job for each
             for (int i = 0; i < request.Parameters.Options.Count; i++)
@@ -99,6 +68,7 @@ public class RunMassGenerationHandler(
                 var message = new RunGenerationRequest
                 {
                     OperationId = messageOperationId,
+                    SeriesId = seriesId,
                     Parameters = option
                 };
                 
