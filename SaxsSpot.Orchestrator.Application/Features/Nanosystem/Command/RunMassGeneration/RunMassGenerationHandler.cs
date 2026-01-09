@@ -69,7 +69,9 @@ public class RunMassGenerationHandler(
                 {
                     OperationId = messageOperationId,
                     SeriesId = seriesId,
-                    Parameters = option
+                    Parameters = option,
+                    ZoneCount = request.Parameters.ZoneCount,
+                    NeedAnalysis = request.Parameters.NeedAnalysis
                 };
                 
                 await producer.Produce(message, cancellationToken);

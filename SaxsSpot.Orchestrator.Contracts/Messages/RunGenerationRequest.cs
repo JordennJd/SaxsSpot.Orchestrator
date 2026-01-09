@@ -15,6 +15,12 @@ public record RunGenerationRequest
     
     [JsonPropertyName("parameters")]
     public CommonParticleGenerationParametersDto Parameters { get; init; } = default!;
+    
+    [JsonPropertyName("zoneCount")]
+    public int? ZoneCount { get; init; }
+    
+    [JsonPropertyName("needAnalysis")]
+    public bool? NeedAnalysis { get; init; }
 }
 
 /// <summary>
@@ -31,12 +37,6 @@ public record CommonParticleGenerationParametersDto
     [JsonPropertyName("globalSize")]
     public double? GlobalSize { get; init; }
     
-    [JsonPropertyName("minSize")]
-    public float MinSize { get; init; }
-    
-    [JsonPropertyName("maxSize")]
-    public float MaxSize { get; init; }
-    
     [JsonPropertyName("theta")]
     public float Theta { get; init; }
     
@@ -48,4 +48,7 @@ public record CommonParticleGenerationParametersDto
     
     [JsonPropertyName("epsilon")]
     public float? Epsilon { get; init; }
+    
+    [JsonPropertyName("pointCount")]
+    public int? PointCount { get; init; }
 }

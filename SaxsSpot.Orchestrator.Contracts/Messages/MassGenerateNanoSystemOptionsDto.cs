@@ -13,4 +13,13 @@ public record MassGenerateNanoSystemOptionsDto
     
     [JsonPropertyName("nanoSystemsKind")]
     public ParticleKind NanoSystemsKind { get; init; }
+    
+    [JsonPropertyName("zoneCount")]
+    public int? ZoneCount { get; init; }
+    
+    [JsonPropertyName("pointCount")]
+    public int? PointCount { get; init; }
+    
+    [JsonPropertyName("needAnalysis")]
+    public bool? NeedAnalysis { get; init; }
 }
