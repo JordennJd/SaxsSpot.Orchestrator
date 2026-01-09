@@ -71,7 +71,8 @@ public class RunMassGenerationHandler(
                     SeriesId = seriesId,
                     Parameters = option,
                     ZoneCount = request.Parameters.ZoneCount,
-                    NeedAnalysis = request.Parameters.NeedAnalysis
+                    NeedAnalysis = request.Parameters.NeedAnalysis,
+                    NeedMetrics = request.Parameters.NeedMetrics
                 };
                 
                 await producer.Produce(message, cancellationToken);

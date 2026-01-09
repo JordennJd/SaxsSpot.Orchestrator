@@ -22,4 +22,7 @@ public record MassGenerateNanoSystemOptionsDto
     
     [JsonPropertyName("needAnalysis")]
     public bool? NeedAnalysis { get; init; }
+    
+    [JsonPropertyName("needMetrics")]
+    public bool? NeedMetrics { get; init; }
 }
