@@ -40,6 +40,8 @@ services:
       retries: 5
     ports:
       - "54321:5432"
+    volumes:
+      - nanosystem-db-data:/var/lib/postgresql
 
   orchestrator-db:
     image: postgres:latest
@@ -54,6 +56,8 @@ services:
       retries: 5
     ports:
       - "54322:5432"
+    volumes:
+      - orchestrator-db-data:/var/lib/postgresql
 
   tracker-db:
     image: postgres
@@ -67,6 +71,8 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    volumes:
+      - tracker-db-data:/var/lib/postgresql
   
   minio:
     image: minio/minio:latest
@@ -75,6 +81,8 @@ services:
       MINIO_ROOT_USER: s3user
       MINIO_ROOT_PASSWORD: s3secretkey
     command: server /data --console-address ":9001"
+    volumes:
+      - minio-data:/data
   
   db-init:
     image: postgres:latest
@@ -93,49 +101,67 @@ services:
                psql -h nanosystem-db -U postgres -d saxs -c 'CREATE SCHEMA IF NOT EXISTS saxs;'"
   
   kafka:
-    image: 'bitnami/kafka:latest'
+    image: 'apache/kafka:3.7.0'
     container_name: kafka
+    hostname: kafka
     ports:
       - '9092:9092'
+      - '29092:29092'
       - '9093:9093'
     environment:
-      KAFKA_CFG_NODE_ID: 0
-      KAFKA_CFG_PROCESS_ROLES: 'broker,controller'
-      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: '0@kafka:9093'
-
-      KAFKA_CFG_LISTENERS: 'BROKER://:9092,BROKER_INTERNAL://:29092,CONTROLLER://:9093'
-      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: 'BROKER:PLAINTEXT,BROKER_INTERNAL:PLAINTEXT,CONTROLLER:PLAINTEXT'
-      KAFKA_CFG_ADVERTISED_LISTENERS: 'BROKER://kafka:9092,BROKER_INTERNAL://kafka:29092'
-      KAFKA_CFG_INTER_BROKER_LISTENER_NAME: 'BROKER_INTERNAL'
-      KAFKA_CFG_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
-
-      KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE: 'false'
-      KAFKA_CFG_NUM_PARTITIONS: '3'
-      KAFKA_CFG_DEFAULT_REPLICATION_FACTOR: '1'
-
-      KAFKA_JMX_PORT: 9999
+      # Kraft Configuration
+      CLUSTER_ID: 'MzI5N2ViNTUtN2U2Zi0wMDAwLThiOWItNDU0ZTRkODI4MWU5'
+      KAFKA_NODE_ID: 0
+      KAFKA_PROCESS_ROLES: 'broker,controller'
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '0@kafka:9093'
+      
+      # Listeners Configuration
+      KAFKA_LISTENERS: 'PLAINTEXT://:9092,CONTROLLER://:9093,INTERNAL://:29092'
+      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://kafka:9092,INTERNAL://kafka:29092'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,INTERNAL:PLAINTEXT'
+      KAFKA_INTER_BROKER_LISTENER_NAME: 'INTERNAL'
+      KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      
+      # Topic Settings
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'false'
+      KAFKA_NUM_PARTITIONS: 3
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 1
+      KAFKA_MIN_INSYNC_REPLICAS: 1
+      
+      # Log directories
+      KAFKA_LOG_DIRS: '/var/lib/kafka/data'
+    volumes:
+      - kafka-data:/var/lib/kafka/data
     healthcheck:
-      test: [ "CMD", "kafka-broker-api-versions.sh", "--bootstrap-server", "kafka:29092" ]
+      test: ["CMD", "/opt/kafka/bin/kafka-broker-api-versions.sh", "--bootstrap-server", "kafka:29092"]
       interval: 10s
       timeout: 5s
       retries: 3
   kafka-setup:
-    image: 'bitnami/kafka:latest'
+    image: 'apache/kafka:3.7.0'
     depends_on:
       kafka:
         condition: service_healthy
     environment:
       KAFKA_BROKER: 'kafka:29092'
-      TOPICS: 'scattering.parallelepiped.calculate:1:1, scattering.parallelepiped.calculate.result:1:1'
+      TOPICS: 'scattering.parallelepiped.calculate:1:1, scattering.parallelepiped.calculate.result:1:1, run-generation-queue:1:1'
     command: >
       bash -c "
         echo 'Waiting for Kafka to be ready...';
-        until kafka-topics.sh --bootstrap-server $${KAFKA_BROKER} --list; do sleep 1; done;
+        until /opt/kafka/bin/kafka-topics.sh --bootstrap-server $${KAFKA_BROKER} --list; do sleep 1; done;
         echo 'Creating topics...';
+        /opt/kafka/bin/kafka-topics.sh --bootstrap-server $${KAFKA_BROKER} \\
+            --create \\
+            --topic __consumer_offsets \\
+            --partitions 50 \\
+            --replication-factor 1 \\
+            --config cleanup.policy=compact \\
+            --if-not-exists;
         IFS=',' read -ra TOPIC_ARRAY <<< \"$${TOPICS}\";
         for topic in \"$${TOPIC_ARRAY[@]}\"; do
           IFS=':' read -ra TOPIC_CONFIG <<< \"$${topic}\";
-          kafka-topics.sh --bootstrap-server $${KAFKA_BROKER} \\
+          /opt/kafka/bin/kafka-topics.sh --bootstrap-server $${KAFKA_BROKER} \\
             --create \\
             --topic $${TOPIC_CONFIG[0]} \\
             --partitions $${TOPIC_CONFIG[1]} \\
@@ -144,6 +170,7 @@ services:
           echo \"Created topic $${TOPIC_CONFIG[0]} with $${TOPIC_CONFIG[1]} partitions and $${TOPIC_CONFIG[2]} replicas\";
         done;
         echo 'All topics created';
+        sleep infinity;
       "
 
   kafka-ui:
@@ -157,7 +184,6 @@ services:
     environment:
       KAFKA_CLUSTERS_0_NAME: 'local'
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: 'kafka:29092'
-      KAFKA_CLUSTERS_0_ZOOKEEPER: 'zookeeper:2181'
       DYNAMIC_CONFIG_ENABLED: 'true'
       
   
@@ -220,6 +246,7 @@ services:
       Cors__AllowedOrigins__2: http://localhost:1000
       APP_ENV: Docker
     depends_on:
+      - kafka-setup
       - liquibase-nanosystem
       - tracker-grpc-service
 
@@ -244,4 +271,10 @@ services:
   chart-service:
     image: jordenndev/saxsspot-chart-service
 
+volumes:
+  orchestrator-db-data:
+  nanosystem-db-data:
+  minio-data:
+  kafka-data:
+  tracker-db-data:
   

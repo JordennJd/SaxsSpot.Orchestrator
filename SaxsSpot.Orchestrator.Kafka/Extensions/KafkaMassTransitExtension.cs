@@ -27,6 +27,7 @@ public static class KafkaMassTransitExtensions
                 rider.AddConsumer<CalculationResultConsumer>();
 
                 rider.AddProducer<CalculateScatteringRequest>(kafkaConfiguration.Topic);
+                rider.AddProducer<RunGenerationRequest>(kafkaConfiguration.RunGenerationTopic);
 
                 rider.UsingKafka((context, k) =>
                 {

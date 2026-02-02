@@ -12,7 +12,7 @@ obj/
 *.msi
 *.msm
 *.msp
-
+*.user
 # Windows Installer files
 Thumbs.db
 ehthumbs.db
