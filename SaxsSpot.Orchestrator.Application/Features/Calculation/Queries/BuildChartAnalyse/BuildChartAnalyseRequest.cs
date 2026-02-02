@@ -5,7 +5,7 @@ using SaxsSpot.Orchestrator.Contracts.Enums;
 namespace SaxsSpot.Orchestrator.Application.Features.Calculation.Queries.BuildChartAnalyse;
 
 public record BuildChartAnalyseRequest(
-    Guid RadialAnalysisId,
+    Guid[] RadialAnalysisIds,
     string ChartTitle,
     string XAxis,
     string YAxis,

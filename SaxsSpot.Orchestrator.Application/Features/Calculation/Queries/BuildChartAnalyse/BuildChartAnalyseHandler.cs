@@ -16,41 +16,51 @@ public class BuildChartAnalyseHandler(
 {
     public async Task<IResult<string>> Handle(BuildChartAnalyseRequest request, CancellationToken cancellationToken)
     {
+        if (request.RadialAnalysisIds == null || request.RadialAnalysisIds.Length == 0)
+        {
+            return FluentResults.Result.Fail<string>("At least one RadialAnalysisId is required");
+        }
+
         try
         {
-            // Получаем файл с данными анализа
-            await using var stream = await nanosystemServiceApiClient.DownloadRadialAnalysis(request.RadialAnalysisId, cancellationToken);
-            
-            // Парсим файл в формате "индекс значение"
-            var dataPoints = await ParseDataFileAsync(stream, cancellationToken);
-            
-            if (dataPoints.Count == 0)
+            var datasets = new List<Dataset>();
+
+            foreach (var radialAnalysisId in request.RadialAnalysisIds)
             {
-                return FluentResults.Result.Fail<string>("No data points found in the radial analysis file");
+                await using var stream = await nanosystemServiceApiClient.DownloadRadialAnalysis(radialAnalysisId, cancellationToken);
+                var dataPoints = await ParseDataFileAsync(stream, cancellationToken);
+
+                if (dataPoints.Count == 0)
+                {
+                    logger.LogWarning("No data points in radial analysis {RadialAnalysisId}, skipping", radialAnalysisId);
+                    continue;
+                }
+
+                datasets.Add(new Dataset
+                {
+                    id = radialAnalysisId.ToString(),
+                    x = dataPoints.Select(p => p.Index).ToArray(),
+                    y = dataPoints.Select(p => p.Value).ToArray()
+                });
             }
 
-            // Создаем dataset для графика
-            var dataset = new Dataset
+            if (datasets.Count == 0)
             {
-                id = request.RadialAnalysisId.ToString(),
-                x = dataPoints.Select(p => p.Index).ToArray(),
-                y = dataPoints.Select(p => p.Value).ToArray()
-            };
+                return FluentResults.Result.Fail<string>("No valid data found in the selected radial analyses");
+            }
 
-            // Строим график используя общий сервис
             return await chartService.BuildChartAsync(
                 request.ChartTitle,
                 request.XAxis,
                 request.YAxis,
-                new[] { dataset },
+                datasets.ToArray(),
                 request.ScaleMethodsX,
                 request.ScaleMethodsY,
                 cancellationToken);
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Failed to build chart for radial analysis {RadialAnalysisId}: {Message}", 
-                request.RadialAnalysisId, ex.Message);
+            logger.LogError(ex, "Failed to build chart for radial analyses: {Message}", ex.Message);
             return FluentResults.Result.Fail<string>($"Failed to build chart: {ex.Message}");
         }
     }
