@@ -1,4 +1,5 @@
 using System.Text;
+using System.Text.Json;
 using FluentResults;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -14,6 +15,11 @@ public class BuildChartAnalyseAverageHandler(
     ILogger<BuildChartAnalyseAverageHandler> logger
 ) : IRequestHandler<BuildChartAnalyseAverageRequest, IResult<string>>
 {
+    private static readonly JsonSerializerOptions JsonOptions = new()
+    {
+        PropertyNameCaseInsensitive = true
+    };
+
     public async Task<IResult<string>> Handle(BuildChartAnalyseAverageRequest request, CancellationToken cancellationToken)
     {
         if (request.RadialAnalysisIds == null || request.RadialAnalysisIds.Length == 0)
@@ -23,44 +29,45 @@ public class BuildChartAnalyseAverageHandler(
 
         try
         {
-            var allDataPoints = new List<List<DataPoint>>();
+            var allLayers = new List<List<RadialAnalysisLayerDto>>();
 
             foreach (var radialAnalysisId in request.RadialAnalysisIds)
             {
                 await using var stream = await nanosystemServiceApiClient.DownloadRadialAnalysis(radialAnalysisId, cancellationToken);
-                var dataPoints = await ParseDataFileAsync(stream, cancellationToken);
+                var layers = await ParseRadialAnalysisFileAsync(stream, cancellationToken);
 
-                if (dataPoints.Count == 0)
+                if (layers.Count == 0)
                 {
-                    logger.LogWarning("No data points in radial analysis {RadialAnalysisId}, skipping", radialAnalysisId);
+                    logger.LogWarning("No layer data in radial analysis {RadialAnalysisId}, skipping", radialAnalysisId);
                     continue;
                 }
 
-                allDataPoints.Add(dataPoints);
+                allLayers.Add(layers);
             }
 
-            if (allDataPoints.Count == 0)
+            if (allLayers.Count == 0)
             {
                 return FluentResults.Result.Fail<string>("No valid data found in the selected radial analyses");
             }
 
-            // Use minimum length so every analysis has a value at each index
-            var minLength = allDataPoints.Min(dp => dp.Count);
+            var minLength = allLayers.Min(l => l.Count);
             if (minLength == 0)
             {
                 return FluentResults.Result.Fail<string>("No data points to average");
             }
 
-            var firstX = allDataPoints[0].Take(minLength).Select(p => p.Index).ToArray();
+            var firstLayers = allLayers[0].Take(minLength).ToList();
+            var xMidpoints = firstLayers.Select(l => l.Midpoint).ToArray();
+            var xLabels = firstLayers.Select(l => l.AxisLabel).ToArray();
             var ySum = new double[minLength];
-            var analysisCount = allDataPoints.Count;
+            var analysisCount = allLayers.Count;
 
             for (var i = 0; i < minLength; i++)
             {
                 var sum = 0.0;
                 for (var k = 0; k < analysisCount; k++)
                 {
-                    sum += allDataPoints[k][i].Value;
+                    sum += allLayers[k][i].NumericalConcentration;
                 }
                 ySum[i] = sum / analysisCount;
             }
@@ -68,8 +75,9 @@ public class BuildChartAnalyseAverageHandler(
             var averageDataset = new Dataset
             {
                 id = "average",
-                x = firstX,
-                y = ySum
+                x = xMidpoints,
+                y = ySum,
+                xLabels = xLabels
             };
 
             return await chartService.BuildChartAsync(
@@ -88,34 +96,47 @@ public class BuildChartAnalyseAverageHandler(
         }
     }
 
-    private async Task<List<DataPoint>> ParseDataFileAsync(Stream stream, CancellationToken cancellationToken)
+    private async Task<List<RadialAnalysisLayerDto>> ParseRadialAnalysisFileAsync(Stream stream, CancellationToken cancellationToken)
     {
-        var dataPoints = new List<DataPoint>();
-
+        var layers = new List<RadialAnalysisLayerDto>();
         using var reader = new StreamReader(stream, Encoding.UTF8);
         string? line;
+        var isFirstLine = true;
 
         while ((line = await reader.ReadLineAsync(cancellationToken)) != null)
         {
             if (string.IsNullOrWhiteSpace(line))
                 continue;
 
-            var parts = line.Split(new[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
-            if (parts.Length >= 2)
+            if (isFirstLine)
             {
-                if (double.TryParse(parts[0], out var index) && double.TryParse(parts[1], out var value))
+                isFirstLine = false;
+                continue;
+            }
+
+            try
+            {
+                var layer = JsonSerializer.Deserialize<RadialAnalysisLayerDto>(line, JsonOptions);
+                if (layer != null)
+                    layers.Add(layer);
+            }
+            catch (JsonException)
+            {
+                var parts = line.Split(new[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
+                if (parts.Length >= 2 && double.TryParse(parts[0], out var index) && double.TryParse(parts[1], out var value))
                 {
-                    dataPoints.Add(new DataPoint { Index = index, Value = value });
+                    layers.Add(new RadialAnalysisLayerDto
+                    {
+                        LayerIndex = (int)index,
+                        LayerFrom = index,
+                        LayerTo = index,
+                        NumericalConcentration = value,
+                        PointCount = 0
+                    });
                 }
             }
         }
 
-        return dataPoints;
-    }
-
-    private class DataPoint
-    {
-        public double Index { get; set; }
-        public double Value { get; set; }
+        return layers.OrderBy(l => l.LayerIndex).ToList();
     }
 }

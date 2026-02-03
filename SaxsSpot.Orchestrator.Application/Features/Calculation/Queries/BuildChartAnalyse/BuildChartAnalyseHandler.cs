@@ -1,4 +1,5 @@
 using System.Text;
+using System.Text.Json;
 using FluentResults;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -14,6 +15,11 @@ public class BuildChartAnalyseHandler(
     ILogger<BuildChartAnalyseHandler> logger
 ) : IRequestHandler<BuildChartAnalyseRequest, IResult<string>>
 {
+    private static readonly JsonSerializerOptions JsonOptions = new()
+    {
+        PropertyNameCaseInsensitive = true
+    };
+
     public async Task<IResult<string>> Handle(BuildChartAnalyseRequest request, CancellationToken cancellationToken)
     {
         if (request.RadialAnalysisIds == null || request.RadialAnalysisIds.Length == 0)
@@ -28,19 +34,20 @@ public class BuildChartAnalyseHandler(
             foreach (var radialAnalysisId in request.RadialAnalysisIds)
             {
                 await using var stream = await nanosystemServiceApiClient.DownloadRadialAnalysis(radialAnalysisId, cancellationToken);
-                var dataPoints = await ParseDataFileAsync(stream, cancellationToken);
+                var layers = await ParseRadialAnalysisFileAsync(stream, cancellationToken);
 
-                if (dataPoints.Count == 0)
+                if (layers.Count == 0)
                 {
-                    logger.LogWarning("No data points in radial analysis {RadialAnalysisId}, skipping", radialAnalysisId);
+                    logger.LogWarning("No layer data in radial analysis {RadialAnalysisId}, skipping", radialAnalysisId);
                     continue;
                 }
 
                 datasets.Add(new Dataset
                 {
                     id = radialAnalysisId.ToString(),
-                    x = dataPoints.Select(p => p.Index).ToArray(),
-                    y = dataPoints.Select(p => p.Value).ToArray()
+                    x = layers.Select(l => l.Midpoint).ToArray(),
+                    y = layers.Select(l => l.NumericalConcentration).ToArray(),
+                    xLabels = layers.Select(l => l.AxisLabel).ToArray()
                 });
             }
 
@@ -65,35 +72,52 @@ public class BuildChartAnalyseHandler(
         }
     }
 
-    private async Task<List<DataPoint>> ParseDataFileAsync(Stream stream, CancellationToken cancellationToken)
+    /// <summary>
+    /// Parses radial analysis file: first line = metadata JSON, then one JSON line per layer (id, nanosystemId, layerIndex, layerFrom, layerTo, numericalConcentration, pointCount).
+    /// </summary>
+    private async Task<List<RadialAnalysisLayerDto>> ParseRadialAnalysisFileAsync(Stream stream, CancellationToken cancellationToken)
     {
-        var dataPoints = new List<DataPoint>();
-        
+        var layers = new List<RadialAnalysisLayerDto>();
         using var reader = new StreamReader(stream, Encoding.UTF8);
         string? line;
-        
+        var isFirstLine = true;
+
         while ((line = await reader.ReadLineAsync(cancellationToken)) != null)
         {
             if (string.IsNullOrWhiteSpace(line))
                 continue;
 
-            var parts = line.Split(new[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
-            if (parts.Length >= 2)
+            if (isFirstLine)
             {
-                if (double.TryParse(parts[0], out var index) && double.TryParse(parts[1], out var value))
+                isFirstLine = false;
+                continue;
+            }
+
+            try
+            {
+                var layer = JsonSerializer.Deserialize<RadialAnalysisLayerDto>(line, JsonOptions);
+                if (layer != null)
+                    layers.Add(layer);
+            }
+            catch (JsonException)
+            {
+                // Fallback: try legacy format "index value" (space-separated)
+                var parts = line.Split(new[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
+                if (parts.Length >= 2 && double.TryParse(parts[0], out var index) && double.TryParse(parts[1], out var value))
                 {
-                    dataPoints.Add(new DataPoint { Index = index, Value = value });
+                    layers.Add(new RadialAnalysisLayerDto
+                    {
+                        LayerIndex = (int)index,
+                        LayerFrom = index,
+                        LayerTo = index,
+                        NumericalConcentration = value,
+                        PointCount = 0
+                    });
                 }
             }
         }
 
-        return dataPoints;
-    }
-
-    private class DataPoint
-    {
-        public double Index { get; set; }
-        public double Value { get; set; }
+        return layers.OrderBy(l => l.LayerIndex).ToList();
     }
 }
 
