@@ -35,6 +35,8 @@ public class RadialAnalysisLayerDto
     /// <summary>Midpoint radius for chart x-axis.</summary>
     public double Midpoint => (LayerFrom + LayerTo) / 2;
 
-    /// <summary>Label for x-axis: layer index, radius range, point count.</summary>
-    public string AxisLabel => $"L{LayerIndex} [{LayerFrom:F2}-{LayerTo:F2}] n={PointCount}";
+    /// <summary>Label for x-axis: layer index and radius range; point count only when &gt; 0.</summary>
+    public string AxisLabel => PointCount > 0
+        ? $"L{LayerIndex} [{LayerFrom:F2}-{LayerTo:F2}] n={PointCount}"
+        : $"L{LayerIndex} [{LayerFrom:F2}-{LayerTo:F2}]";
 }

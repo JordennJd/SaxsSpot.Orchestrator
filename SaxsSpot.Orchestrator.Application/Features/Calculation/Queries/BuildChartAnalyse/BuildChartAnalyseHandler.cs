@@ -68,9 +68,9 @@ public class BuildChartAnalyseHandler(
     }
 
     /// <summary>
-    /// Parses radial analysis file: one line per layer "index (layerFrom - layerTo) NC".
+    /// Parses radial analysis file: one line per layer "index (layerFrom - layerTo) NC [pointCount]".
     /// </summary>
-    private static readonly Regex LineFormat = new(@"^\s*(\d+)\s*\(([\d.eE+-]+)\s*-\s*([\d.eE+-]+)\)\s*([\d.eE+-]+)\s*$");
+    private static readonly Regex LineFormat = new(@"^\s*(\d+)\s*\(([\d.eE+-]+)\s*-\s*([\d.eE+-]+)\)\s*([\d.eE+-]+)(?:\s+(\d+))?\s*$");
 
     private async Task<List<RadialAnalysisLayerDto>> ParseRadialAnalysisFileAsync(Stream stream, CancellationToken cancellationToken)
     {
@@ -89,13 +89,14 @@ public class BuildChartAnalyseHandler(
                 && double.TryParse(m.Groups[3].Value, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var to)
                 && double.TryParse(m.Groups[4].Value, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var nc))
             {
+                var pointCount = m.Groups[5].Success && int.TryParse(m.Groups[5].Value, out var n) ? n : 0;
                 layers.Add(new RadialAnalysisLayerDto
                 {
                     LayerIndex = index,
                     LayerFrom = from,
                     LayerTo = to,
                     NumericalConcentration = nc,
-                    PointCount = 0
+                    PointCount = pointCount
                 });
             }
         }

@@ -15,7 +15,7 @@ public class BuildChartAnalyseAverageHandler(
     ILogger<BuildChartAnalyseAverageHandler> logger
 ) : IRequestHandler<BuildChartAnalyseAverageRequest, IResult<string>>
 {
-    private static readonly Regex LineFormat = new(@"^\s*(\d+)\s*\(([\d.eE+-]+)\s*-\s*([\d.eE+-]+)\)\s*([\d.eE+-]+)\s*$");
+    private static readonly Regex LineFormat = new(@"^\s*(\d+)\s*\(([\d.eE+-]+)\s*-\s*([\d.eE+-]+)\)\s*([\d.eE+-]+)(?:\s+(\d+))?\s*$");
 
     public async Task<IResult<string>> Handle(BuildChartAnalyseAverageRequest request, CancellationToken cancellationToken)
     {
@@ -110,13 +110,14 @@ public class BuildChartAnalyseAverageHandler(
                 && double.TryParse(m.Groups[3].Value, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var to)
                 && double.TryParse(m.Groups[4].Value, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var nc))
             {
+                var pointCount = m.Groups[5].Success && int.TryParse(m.Groups[5].Value, out var n) ? n : 0;
                 layers.Add(new RadialAnalysisLayerDto
                 {
                     LayerIndex = index,
                     LayerFrom = from,
                     LayerTo = to,
                     NumericalConcentration = nc,
-                    PointCount = 0
+                    PointCount = pointCount
                 });
             }
         }
