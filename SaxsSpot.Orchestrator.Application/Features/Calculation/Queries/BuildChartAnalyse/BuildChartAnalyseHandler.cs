@@ -1,5 +1,5 @@
 using System.Text;
-using System.Text.Json;
+using System.Text.RegularExpressions;
 using FluentResults;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -15,11 +15,6 @@ public class BuildChartAnalyseHandler(
     ILogger<BuildChartAnalyseHandler> logger
 ) : IRequestHandler<BuildChartAnalyseRequest, IResult<string>>
 {
-    private static readonly JsonSerializerOptions JsonOptions = new()
-    {
-        PropertyNameCaseInsensitive = true
-    };
-
     public async Task<IResult<string>> Handle(BuildChartAnalyseRequest request, CancellationToken cancellationToken)
     {
         if (request.RadialAnalysisIds == null || request.RadialAnalysisIds.Length == 0)
@@ -73,47 +68,35 @@ public class BuildChartAnalyseHandler(
     }
 
     /// <summary>
-    /// Parses radial analysis file: first line = metadata JSON, then one JSON line per layer (id, nanosystemId, layerIndex, layerFrom, layerTo, numericalConcentration, pointCount).
+    /// Parses radial analysis file: one line per layer "index (layerFrom - layerTo) NC".
     /// </summary>
+    private static readonly Regex LineFormat = new(@"^\s*(\d+)\s*\(([\d.eE+-]+)\s*-\s*([\d.eE+-]+)\)\s*([\d.eE+-]+)\s*$");
+
     private async Task<List<RadialAnalysisLayerDto>> ParseRadialAnalysisFileAsync(Stream stream, CancellationToken cancellationToken)
     {
         var layers = new List<RadialAnalysisLayerDto>();
         using var reader = new StreamReader(stream, Encoding.UTF8);
         string? line;
-        var isFirstLine = true;
 
         while ((line = await reader.ReadLineAsync(cancellationToken)) != null)
         {
             if (string.IsNullOrWhiteSpace(line))
                 continue;
 
-            if (isFirstLine)
+            var m = LineFormat.Match(line);
+            if (m.Success && int.TryParse(m.Groups[1].Value, out var index)
+                && double.TryParse(m.Groups[2].Value, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var from)
+                && double.TryParse(m.Groups[3].Value, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var to)
+                && double.TryParse(m.Groups[4].Value, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var nc))
             {
-                isFirstLine = false;
-                continue;
-            }
-
-            try
-            {
-                var layer = JsonSerializer.Deserialize<RadialAnalysisLayerDto>(line, JsonOptions);
-                if (layer != null)
-                    layers.Add(layer);
-            }
-            catch (JsonException)
-            {
-                // Fallback: try legacy format "index value" (space-separated)
-                var parts = line.Split(new[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
-                if (parts.Length >= 2 && double.TryParse(parts[0], out var index) && double.TryParse(parts[1], out var value))
+                layers.Add(new RadialAnalysisLayerDto
                 {
-                    layers.Add(new RadialAnalysisLayerDto
-                    {
-                        LayerIndex = (int)index,
-                        LayerFrom = index,
-                        LayerTo = index,
-                        NumericalConcentration = value,
-                        PointCount = 0
-                    });
-                }
+                    LayerIndex = index,
+                    LayerFrom = from,
+                    LayerTo = to,
+                    NumericalConcentration = nc,
+                    PointCount = 0
+                });
             }
         }
 
