@@ -54,8 +54,10 @@ public class BuildChartAnalyseAverageHandler(
             }
 
             var firstLayers = allLayers[0].Take(minLength).ToList();
-            var xMidpoints = firstLayers.Select(l => l.Midpoint).ToArray();
-            var xLabels = firstLayers.Select(l => l.AxisLabel).ToArray();
+            var totalPoints = firstLayers.Sum(l => l.PointCount);
+            // X-axis: constant 10, 20, 30, ... nm per layer
+            var xValues = firstLayers.Select((_, i) => (i + 1) * 10.0).ToArray();
+            var xLabelsNm = firstLayers.Select((_, i) => ((i + 1) * 10).ToString()).ToArray();
             var ySum = new double[minLength];
             var analysisCount = allLayers.Count;
 
@@ -71,10 +73,10 @@ public class BuildChartAnalyseAverageHandler(
 
             var averageDataset = new Dataset
             {
-                id = "average",
-                x = xMidpoints,
+                id = $"Average — Layers: {minLength}, Points: {totalPoints:N0}",
+                x = xValues,
                 y = ySum,
-                xLabels = xLabels
+                xLabels = xLabelsNm
             };
 
             return await chartService.BuildChartAsync(

@@ -37,12 +37,18 @@ public class BuildChartAnalyseHandler(
                     continue;
                 }
 
+                var totalPoints = layers.Sum(l => l.PointCount);
+                var layerCount = layers.Count;
+                // X-axis: constant 10, 20, 30, ... nm per layer
+                var xValues = layers.Select((_, i) => (i + 1) * 10.0).ToArray();
+                var xLabelsNm = layers.Select((_, i) => ((i + 1) * 10).ToString()).ToArray();
+
                 datasets.Add(new Dataset
                 {
-                    id = radialAnalysisId.ToString(),
-                    x = layers.Select(l => l.Midpoint).ToArray(),
+                    id = $"Layers: {layerCount}, Points: {totalPoints:N0}, Guid: {radialAnalysisId.ToString()}",
+                    x = xValues,
                     y = layers.Select(l => l.NumericalConcentration).ToArray(),
-                    xLabels = layers.Select(l => l.AxisLabel).ToArray()
+                    xLabels = xLabelsNm
                 });
             }
 
