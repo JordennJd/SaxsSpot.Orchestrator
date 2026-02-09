@@ -55,9 +55,9 @@ public class BuildChartAnalyseAverageHandler(
 
             var firstLayers = allLayers[0].Take(minLength).ToList();
             var totalPoints = firstLayers.Sum(l => l.PointCount);
-            // X-axis: constant 10, 20, 30, ... nm per layer
-            var xValues = firstLayers.Select((_, i) => (i + 1) * 10.0).ToArray();
-            var xLabelsNm = firstLayers.Select((_, i) => ((i + 1) * 10).ToString()).ToArray();
+            // X-axis: real layer midpoints (r in nm), scale matches layer intervals; last point ≈ end of last layer
+            var xValues = firstLayers.Select(l => l.Midpoint).ToArray();
+            var xLabelsNm = firstLayers.Select(l => l.Midpoint.ToString("F1", System.Globalization.CultureInfo.InvariantCulture)).ToArray();
             var ySum = new double[minLength];
             var analysisCount = allLayers.Count;
 

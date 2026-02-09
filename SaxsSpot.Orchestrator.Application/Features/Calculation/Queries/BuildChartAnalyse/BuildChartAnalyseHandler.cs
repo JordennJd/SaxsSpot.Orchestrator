@@ -39,13 +39,13 @@ public class BuildChartAnalyseHandler(
 
                 var totalPoints = layers.Sum(l => l.PointCount);
                 var layerCount = layers.Count;
-                // X-axis: constant 10, 20, 30, ... nm per layer
-                var xValues = layers.Select((_, i) => (i + 1) * 10.0).ToArray();
-                var xLabelsNm = layers.Select((_, i) => ((i + 1) * 10).ToString()).ToArray();
+                // X-axis: real layer midpoints (r in nm), scale matches layer intervals; last point ≈ end of last layer
+                var xValues = layers.Select(l => l.Midpoint).ToArray();
+                var xLabelsNm = layers.Select(l => l.Midpoint.ToString("F1", System.Globalization.CultureInfo.InvariantCulture)).ToArray();
 
                 datasets.Add(new Dataset
                 {
-                    id = $"Layers: {layerCount}, Points: {totalPoints:N0}, Guid: {radialAnalysisId.ToString()}",
+                    id = $"Layers: {layerCount}, Points: {totalPoints:N0}",
                     x = xValues,
                     y = layers.Select(l => l.NumericalConcentration).ToArray(),
                     xLabels = xLabelsNm
