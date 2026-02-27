@@ -9,6 +9,7 @@ using SaxsSpot.Orchestrator.Application.Features.Calculation.Queries.GetCalcualt
 using SaxsSpot.Orchestrator.Application.Features.Calculation.Queries.GetCalculation;
 using SaxsSpot.Orchestrator.Application.Features.Calculation.Queries.GetCalculationListByNanosystemId;
 using SaxsSpot.Orchestrator.Application.Features.Calculation.Queries.PlotChart;
+using SaxsSpot.Orchestrator.Application.Features.Calculation.Queries.PlotChartAverage;
 using SaxsSpot.Shared.Contracts.Models;
 
 namespace SaxsSpot.Orchestrator.Controllers;
@@ -74,7 +75,18 @@ public class CalculationController(IMediator mediator) : Controller
         }
         return Ok(result.ToResultDto());
     }
-    
+
+    [HttpGet("plot-chart-average")]
+    public async Task<IActionResult> BuildChartAverage([FromQuery] PlotChartAverageRequest dto)
+    {
+        var result = await mediator.Send(dto);
+        if (!result.IsSuccess)
+        {
+            return BadRequest(result.ToResultDto());
+        }
+        return Ok(result.ToResultDto());
+    }
+
     [HttpGet("plot-analyse")]
     public async Task<IActionResult> BuildChartAnalyse([FromQuery] BuildChartAnalyseRequest dto)
     {
