@@ -17,7 +17,8 @@ public class PlotChartAverageHandler(
     IChartService chartService
 ) : IRequestHandler<PlotChartAverageRequest, IResult<string>>
 {
-    private const double QRelativeTolerance = 1e-6;
+    private const double QRelativeTolerance = 1e-5;
+    private const double QAbsoluteTolerance = 1e-9;
 
     public async Task<IResult<string>> Handle(PlotChartAverageRequest request, CancellationToken cancellationToken)
     {
@@ -55,7 +56,7 @@ public class PlotChartAverageHandler(
             {
                 var refVal = xRef[i];
                 var curVal = datasets[d].X[i];
-                var tol = Math.Max(Math.Abs(refVal), Math.Abs(curVal)) * QRelativeTolerance + 1e-12;
+                var tol = Math.Max(Math.Abs(refVal), Math.Abs(curVal)) * QRelativeTolerance + QAbsoluteTolerance;
                 if (Math.Abs(curVal - refVal) > tol)
                     return FluentResults.Result.Fail<string>(
                         "Cannot average: Q values (abscissa) do not align across calculations. " +
