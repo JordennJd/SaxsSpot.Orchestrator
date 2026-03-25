@@ -39,38 +39,58 @@ public class PlotChartAverageHandler(
         if (datasets.Count == 0)
             return FluentResults.Result.Fail<string>("No data found in the selected calculations.");
 
-        var n = datasets[0].X.Length;
-        foreach (var (x, _) in datasets)
-        {
-            if (x.Length != n)
-                return FluentResults.Result.Fail<string>(
-                    "Cannot average: abscissa count does not match across calculations. " +
-                    $"Expected {n} points everywhere. Select calculations with the same Q grid (same number of points).");
-        }
+        // We average only calculations that have Q grids aligned within tolerance.
+        // This avoids hard-failing when user selected a parameter group that still contains
+        // tiny numerical differences in Q.
+        var bestRefIndex = -1;
+        var alignedIndices = new List<int>();
 
-        // Optionally ensure Q values align (same grid)
-        var xRef = datasets[0].X;
-        for (var d = 1; d < datasets.Count; d++)
+        for (var refIndex = 0; refIndex < datasets.Count; refIndex++)
         {
-            for (var i = 0; i < n; i++)
+            var xRefCandidate = datasets[refIndex].X;
+            var nCandidate = xRefCandidate.Length;
+
+            var indicesForThisRef = new List<int> { refIndex };
+            for (var otherIndex = 0; otherIndex < datasets.Count; otherIndex++)
             {
-                var refVal = xRef[i];
-                var curVal = datasets[d].X[i];
-                var tol = Math.Max(Math.Abs(refVal), Math.Abs(curVal)) * QRelativeTolerance + QAbsoluteTolerance;
-                if (Math.Abs(curVal - refVal) > tol)
-                    return FluentResults.Result.Fail<string>(
-                        "Cannot average: Q values (abscissa) do not align across calculations. " +
-                        "Select calculations with the same Q grid.");
+                if (otherIndex == refIndex) continue;
+
+                var xCur = datasets[otherIndex].X;
+                if (xCur.Length != nCandidate)
+                    continue;
+
+                if (AreQGridsAligned(xRefCandidate, xCur))
+                    indicesForThisRef.Add(otherIndex);
+            }
+
+            if (indicesForThisRef.Count > alignedIndices.Count)
+            {
+                alignedIndices = indicesForThisRef;
+                bestRefIndex = refIndex;
             }
         }
 
-        var count = datasets.Count;
+        if (alignedIndices.Count == 0)
+            return FluentResults.Result.Fail<string>("Cannot average: no aligned Q grids found.");
+
+        if (alignedIndices.Count < 2)
+            return FluentResults.Result.Fail<string>(
+                $"Cannot average: only {alignedIndices.Count} calculation(s) have Q grids aligned within tolerance. " +
+                $"Select another calculation group.");
+
+        var xRef = datasets[bestRefIndex].X;
+        var n = xRef.Length;
+        var count = alignedIndices.Count;
+
         var ySum = new double[n];
         for (var i = 0; i < n; i++)
         {
             var sum = 0.0;
             for (var k = 0; k < count; k++)
-                sum += datasets[k].Y[i];
+            {
+                var idx = alignedIndices[k];
+                sum += datasets[idx].Y[i];
+            }
             ySum[i] = sum / count;
         }
 
@@ -89,5 +109,20 @@ public class PlotChartAverageHandler(
             request.ScaleMethodsX,
             request.ScaleMethodsY,
             cancellationToken);
+    }
+
+    private static bool AreQGridsAligned(double[] xRef, double[] xCur)
+    {
+        var n = xRef.Length;
+        for (var i = 0; i < n; i++)
+        {
+            var refVal = xRef[i];
+            var curVal = xCur[i];
+            var tol = Math.Max(Math.Abs(refVal), Math.Abs(curVal)) * QRelativeTolerance + QAbsoluteTolerance;
+            if (Math.Abs(curVal - refVal) > tol)
+                return false;
+        }
+
+        return true;
     }
 }
