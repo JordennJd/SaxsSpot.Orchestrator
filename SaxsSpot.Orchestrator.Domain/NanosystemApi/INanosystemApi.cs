@@ -5,5 +5,5 @@ namespace SaxsSpot.Orchestrator.Domain.NanosystemApi;
 
 public interface INanosystemApi
 {
-    public Task<IEnumerable<Nanosystem>> GetNanosystemsAsync(ApiQuery query, CancellationToken cancellation);
+    Task<IEnumerable<Nanosystem>> GetNanosystemsAsync(ApiQuery query, CancellationToken cancellation);
 }

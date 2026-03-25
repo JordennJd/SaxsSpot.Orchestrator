@@ -8,6 +8,7 @@ using SaxsSpot.Orchestrator.Application.Features.Calculation.Queries.BuildChartA
 using SaxsSpot.Orchestrator.Application.Features.Calculation.Queries.GetCalcualtionList;
 using SaxsSpot.Orchestrator.Application.Features.Calculation.Queries.GetCalculation;
 using SaxsSpot.Orchestrator.Application.Features.Calculation.Queries.GetCalculationListByNanosystemId;
+using SaxsSpot.Orchestrator.Application.Features.Calculation.Queries.GetSeriesCalculationGroups;
 using SaxsSpot.Orchestrator.Application.Features.Calculation.Queries.PlotChart;
 using SaxsSpot.Orchestrator.Application.Features.Calculation.Queries.PlotChartAverage;
 using SaxsSpot.Shared.Contracts.Models;
@@ -47,6 +48,17 @@ public class CalculationController(IMediator mediator) : Controller
     public async Task<IActionResult> GetCalculationListByNanosystemId([FromQuery] GetCalculationByNanosystemIdRequest dto)
     {
         var result = await mediator.Send(dto);
+        if (!result.IsSuccess)
+        {
+            return BadRequest(result.ToResultDto());
+        }
+        return Ok(result.ToResultDto());
+    }
+
+    [HttpGet("series-groups")]
+    public async Task<IActionResult> GetSeriesCalculationGroups([FromQuery] Guid seriesId)
+    {
+        var result = await mediator.Send(new GetSeriesCalculationGroupsRequest(seriesId));
         if (!result.IsSuccess)
         {
             return BadRequest(result.ToResultDto());
