@@ -13,5 +13,17 @@ public interface IChartService
         SpaceMethod scaleMethodsX,
         SpaceMethod scaleMethodsY,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Returns PNG as base64 string (no data URI prefix).
+    /// </summary>
+    Task<FluentResults.Result<string>> BuildChartPngAsync(
+        string chartTitle,
+        string xAxis,
+        string yAxis,
+        Dataset[] datasets,
+        SpaceMethod scaleMethodsX,
+        SpaceMethod scaleMethodsY,
+        CancellationToken cancellationToken = default);
 }
 

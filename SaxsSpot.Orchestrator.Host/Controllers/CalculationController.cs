@@ -5,12 +5,16 @@ using SaxsSpot.Orchestrator.Application.Features.Calculation.Command.RunCalculat
 using SaxsSpot.Orchestrator.Application.Features.Calculation.Command.RunSeriesCalculation;
 using SaxsSpot.Orchestrator.Application.Features.Calculation.Queries.BuildChartAnalyse;
 using SaxsSpot.Orchestrator.Application.Features.Calculation.Queries.BuildChartAnalyseAverage;
+using SaxsSpot.Orchestrator.Application.Features.Calculation.Queries.BuildChartAnalysePng;
+using SaxsSpot.Orchestrator.Application.Features.Calculation.Queries.BuildChartAnalyseAveragePng;
 using SaxsSpot.Orchestrator.Application.Features.Calculation.Queries.GetCalcualtionList;
 using SaxsSpot.Orchestrator.Application.Features.Calculation.Queries.GetCalculation;
 using SaxsSpot.Orchestrator.Application.Features.Calculation.Queries.GetCalculationListByNanosystemId;
 using SaxsSpot.Orchestrator.Application.Features.Calculation.Queries.GetSeriesCalculationGroups;
 using SaxsSpot.Orchestrator.Application.Features.Calculation.Queries.PlotChart;
 using SaxsSpot.Orchestrator.Application.Features.Calculation.Queries.PlotChartAverage;
+using SaxsSpot.Orchestrator.Application.Features.Calculation.Queries.PlotChartPng;
+using SaxsSpot.Orchestrator.Application.Features.Calculation.Queries.PlotChartAveragePng;
 using SaxsSpot.Shared.Contracts.Models;
 
 namespace SaxsSpot.Orchestrator.Controllers;
@@ -88,8 +92,30 @@ public class CalculationController(IMediator mediator) : Controller
         return Ok(result.ToResultDto());
     }
 
+    [HttpGet("plot-png")]
+    public async Task<IActionResult> BuildChartPng([FromQuery] PlotChartPngRequest dto)
+    {
+        var result = await mediator.Send(dto);
+        if (!result.IsSuccess)
+        {
+            return BadRequest(result.ToResultDto());
+        }
+        return Ok(result.ToResultDto());
+    }
+
     [HttpGet("plot-chart-average")]
     public async Task<IActionResult> BuildChartAverage([FromQuery] PlotChartAverageRequest dto)
+    {
+        var result = await mediator.Send(dto);
+        if (!result.IsSuccess)
+        {
+            return BadRequest(result.ToResultDto());
+        }
+        return Ok(result.ToResultDto());
+    }
+
+    [HttpGet("plot-chart-average-png")]
+    public async Task<IActionResult> BuildChartAveragePng([FromQuery] PlotChartAveragePngRequest dto)
     {
         var result = await mediator.Send(dto);
         if (!result.IsSuccess)
@@ -110,8 +136,30 @@ public class CalculationController(IMediator mediator) : Controller
         return Ok(result.ToResultDto());
     }
 
+    [HttpGet("plot-analyse-png")]
+    public async Task<IActionResult> BuildChartAnalysePng([FromQuery] BuildChartAnalysePngRequest dto)
+    {
+        var result = await mediator.Send(dto);
+        if (!result.IsSuccess)
+        {
+            return BadRequest(result.ToResultDto());
+        }
+        return Ok(result.ToResultDto());
+    }
+
     [HttpGet("plot-analyse-average")]
     public async Task<IActionResult> BuildChartAnalyseAverage([FromQuery] BuildChartAnalyseAverageRequest dto)
+    {
+        var result = await mediator.Send(dto);
+        if (!result.IsSuccess)
+        {
+            return BadRequest(result.ToResultDto());
+        }
+        return Ok(result.ToResultDto());
+    }
+
+    [HttpGet("plot-analyse-average-png")]
+    public async Task<IActionResult> BuildChartAnalyseAveragePng([FromQuery] BuildChartAnalyseAveragePngRequest dto)
     {
         var result = await mediator.Send(dto);
         if (!result.IsSuccess)

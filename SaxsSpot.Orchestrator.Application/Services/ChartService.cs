@@ -55,5 +55,53 @@ public class ChartService(IConfiguration configuration, ILogger<ChartService> lo
             return FluentResults.Result.Fail<string>("Build chart failed");
         }
     }
+
+    public async Task<Result<string>> BuildChartPngAsync(
+        string chartTitle,
+        string xAxis,
+        string yAxis,
+        Dataset[] datasets,
+        SpaceMethod scaleMethodsX,
+        SpaceMethod scaleMethodsY,
+        CancellationToken cancellationToken = default)
+    {
+        var plotRequest = new PlotRequest
+        {
+            title = chartTitle,
+            x_label = xAxis,
+            y_label = yAxis,
+            x_log_scale = scaleMethodsX == SpaceMethod.Log,
+            y_log_scale = scaleMethodsY == SpaceMethod.Log,
+            datasets = datasets
+        };
+
+        foreach (var dataset in datasets)
+        {
+            dataset.SortByX();
+        }
+
+        using var client = new HttpClient();
+
+        try
+        {
+            var chartUri = configuration.GetValue<string>("chart:uri");
+            if (string.IsNullOrEmpty(chartUri))
+            {
+                return FluentResults.Result.Fail<string>("Chart URI is not configured");
+            }
+
+            var response = await client.PostAsJsonAsync($"{chartUri}/plot/png", plotRequest, cancellationToken);
+            response.EnsureSuccessStatusCode();
+
+            var pngBytes = await response.Content.ReadAsByteArrayAsync(cancellationToken);
+            var base64 = Convert.ToBase64String(pngBytes);
+            return FluentResults.Result.Ok(base64);
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, "Failed to build chart PNG: {Message}", e.Message);
+            return FluentResults.Result.Fail<string>("Build chart PNG failed");
+        }
+    }
 }
 
