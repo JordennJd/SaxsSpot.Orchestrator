@@ -17,10 +17,7 @@ public class PlotChartAverageHandler(
     IChartService chartService
 ) : IRequestHandler<PlotChartAverageRequest, IResult<string>>
 {
-    // When Q grids are generated with the same input parameters, they usually match exactly.
-    // Still, floating-point differences may lead to tiny mismatches, so we fallback to interpolation.
     private const double QRelativeTolerance = 1e-6;
-    private const double QAbsoluteTolerance = 1e-12;
 
     public async Task<IResult<string>> Handle(PlotChartAverageRequest request, CancellationToken cancellationToken)
     {
@@ -41,28 +38,40 @@ public class PlotChartAverageHandler(
         if (datasets.Count == 0)
             return FluentResults.Result.Fail<string>("No data found in the selected calculations.");
 
+        var n = datasets[0].X.Length;
+        foreach (var (x, _) in datasets)
+        {
+            if (x.Length != n)
+                return FluentResults.Result.Fail<string>(
+                    "Cannot average: abscissa count does not match across calculations. " +
+                    $"Expected {n} points everywhere. Select calculations with the same Q grid (same number of points).");
+        }
+
+        // Optionally ensure Q values align (same grid)
         var xRef = datasets[0].X;
-        var n = xRef.Length;
-        if (n == 0)
-            return FluentResults.Result.Fail<string>("Cannot average: empty Q grid.");
+        for (var d = 1; d < datasets.Count; d++)
+        {
+            for (var i = 0; i < n; i++)
+            {
+                var refVal = xRef[i];
+                var curVal = datasets[d].X[i];
+                var tol = Math.Max(Math.Abs(refVal), Math.Abs(curVal)) * QRelativeTolerance + 1e-12;
+                if (Math.Abs(curVal - refVal) > tol)
+                    return FluentResults.Result.Fail<string>(
+                        "Cannot average: Q values (abscissa) do not align across calculations. " +
+                        "Select calculations with the same Q grid.");
+            }
+        }
 
         var count = datasets.Count;
         var ySum = new double[n];
-
-        for (var k = 0; k < count; k++)
-        {
-            var xCur = datasets[k].X;
-            var yCur = datasets[k].Y;
-
-            var aligned = xCur.Length == n && AreQGridsAligned(xRef, xCur);
-            var yOnRef = aligned ? yCur : InterpolateToGrid(xCur, yCur, xRef);
-
-            for (var i = 0; i < n; i++)
-                ySum[i] += yOnRef[i];
-        }
-
         for (var i = 0; i < n; i++)
-            ySum[i] /= count;
+        {
+            var sum = 0.0;
+            for (var k = 0; k < count; k++)
+                sum += datasets[k].Y[i];
+            ySum[i] = sum / count;
+        }
 
         var averageDataset = new Dataset
         {
@@ -79,69 +88,5 @@ public class PlotChartAverageHandler(
             request.ScaleMethodsX,
             request.ScaleMethodsY,
             cancellationToken);
-    }
-
-    private static bool AreQGridsAligned(double[] xRef, double[] xCur)
-    {
-        var n = xRef.Length;
-        for (var i = 0; i < n; i++)
-        {
-            var refVal = xRef[i];
-            var curVal = xCur[i];
-            var tol = Math.Max(Math.Abs(refVal), Math.Abs(curVal)) * QRelativeTolerance + QAbsoluteTolerance;
-            if (Math.Abs(curVal - refVal) > tol)
-                return false;
-        }
-        return true;
-    }
-
-    // Simple linear interpolation of intensity values onto a reference Q grid.
-    // Assumes x arrays are sorted in ascending order.
-    private static double[] InterpolateToGrid(double[] x, double[] y, double[] xQuery)
-    {
-        if (x.Length != y.Length)
-            throw new InvalidOperationException("Cannot average: dataset X/Y length mismatch.");
-
-        if (x.Length < 2)
-            throw new InvalidOperationException("Cannot average: interpolation requires at least 2 Q points.");
-
-        // Ensure monotonic increasing Q.
-        for (var i = 0; i < x.Length - 1; i++)
-        {
-            if (x[i + 1] < x[i])
-                throw new InvalidOperationException("Cannot average: Q grid is not monotonic.");
-        }
-
-        var result = new double[xQuery.Length];
-
-        var j = 0;
-        var xMin = x[0];
-        var xMax = x[^1];
-        for (var i = 0; i < xQuery.Length; i++)
-        {
-            var q = xQuery[i];
-            if (q < xMin - QAbsoluteTolerance || q > xMax + QAbsoluteTolerance)
-                throw new InvalidOperationException("Cannot average: Q range mismatch across datasets.");
-
-            while (j < x.Length - 2 && x[j + 1] < q)
-                j++;
-
-            var x0 = x[j];
-            var x1 = x[j + 1];
-            var y0 = y[j];
-            var y1 = y[j + 1];
-
-            if (Math.Abs(x1 - x0) <= QAbsoluteTolerance)
-            {
-                // Degenerate segment.
-                result[i] = y0;
-                continue;
-            }
-
-            var t = (q - x0) / (x1 - x0);
-            result[i] = y0 + t * (y1 - y0);
-        }
-
-        return result;
     }
 }
