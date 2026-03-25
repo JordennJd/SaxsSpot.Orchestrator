@@ -90,8 +90,14 @@ public class ChartService(IConfiguration configuration, ILogger<ChartService> lo
                 return FluentResults.Result.Fail<string>("Chart URI is not configured");
             }
 
-            var response = await client.PostAsJsonAsync($"{chartUri}/plot/png", plotRequest, cancellationToken);
-            response.EnsureSuccessStatusCode();
+            using var response = await client.PostAsJsonAsync($"{chartUri}/plot/png", plotRequest, cancellationToken);
+            if (!response.IsSuccessStatusCode)
+            {
+                var body = await response.Content.ReadAsStringAsync(cancellationToken);
+                var status = (int)response.StatusCode;
+                logger.LogError("Chart PNG request failed: {Status} {Body}", status, body);
+                return FluentResults.Result.Fail<string>($"Build chart PNG failed: HTTP {status}. {body}");
+            }
 
             var pngBytes = await response.Content.ReadAsByteArrayAsync(cancellationToken);
             var base64 = Convert.ToBase64String(pngBytes);
@@ -100,7 +106,7 @@ public class ChartService(IConfiguration configuration, ILogger<ChartService> lo
         catch (Exception e)
         {
             logger.LogError(e, "Failed to build chart PNG: {Message}", e.Message);
-            return FluentResults.Result.Fail<string>("Build chart PNG failed");
+            return FluentResults.Result.Fail<string>($"Build chart PNG failed: {e.Message}");
         }
     }
 }
