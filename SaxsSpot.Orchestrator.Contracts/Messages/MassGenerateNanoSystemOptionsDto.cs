@@ -25,4 +25,7 @@ public record MassGenerateNanoSystemOptionsDto
     
     [JsonPropertyName("needMetrics")]
     public bool? NeedMetrics { get; init; }
+
+    [JsonPropertyName("disableIntersectionOptimizations")]
+    public bool? DisableIntersectionOptimizations { get; init; }
 }
