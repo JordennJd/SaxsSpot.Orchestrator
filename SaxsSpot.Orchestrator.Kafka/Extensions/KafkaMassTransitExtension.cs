@@ -27,8 +27,15 @@ public static class KafkaMassTransitExtensions
             {
                 rider.AddConsumer<CalculationResultConsumer>();
 
-                rider.AddProducer<CalculateScatteringRequest>(kafkaConfiguration.Topic);
-                rider.AddProducer<RunGenerationRequest>(kafkaConfiguration.RunGenerationTopic);
+                rider.AddProducer<CalculateScatteringRequest>(kafkaConfiguration.Topic, (_, producer) =>
+                {
+                    producer.Partitioner = Partitioner.Random;
+                });
+
+                rider.AddProducer<RunGenerationRequest>(kafkaConfiguration.RunGenerationTopic, (_, producer) =>
+                {
+                    producer.Partitioner = Partitioner.Random;
+                });
 
                 rider.UsingKafka((context, k) =>
                 {
