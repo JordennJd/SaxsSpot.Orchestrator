@@ -8,8 +8,8 @@
 
     <ItemGroup>
       <PackageReference Include="Gridify.EntityFramework" Version="2.16.3" />
-      <PackageReference Include="SaxsSpot.Core.CommonObjectStorage" Version="2.2.1" />
-      <PackageReference Include="SaxsSpot.Core.GenericStorage" Version="2.2.1" />
+      <PackageReference Include="SaxsSpot.Core.CommonObjectStorage" Version="2.1.0" />
+      <PackageReference Include="SaxsSpot.Core.GenericStorage" Version="2.1.0" />
       <PackageReference Include="SaxsSpot.Shared.Contracts" Version="1.2.1" />
     </ItemGroup>
 
