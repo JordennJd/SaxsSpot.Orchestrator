@@ -17,6 +17,7 @@ public static class ServiceCollectionExtension
         return services
             .AddLogging(cfg => cfg.AddConsole())
             .AddScoped<IChartService, ChartService>()
+            .AddScoped<ScatteringCompareChartBuilder>()
             .AddMediatR(cfg =>
                 {
                     cfg.RegisterServicesFromAssemblies(domain);

@@ -15,6 +15,8 @@ using SaxsSpot.Orchestrator.Application.Features.Calculation.Queries.PlotChart;
 using SaxsSpot.Orchestrator.Application.Features.Calculation.Queries.PlotChartAverage;
 using SaxsSpot.Orchestrator.Application.Features.Calculation.Queries.PlotChartPng;
 using SaxsSpot.Orchestrator.Application.Features.Calculation.Queries.PlotChartAveragePng;
+using SaxsSpot.Orchestrator.Application.Features.Calculation.Queries.PlotScatteringCompare;
+using SaxsSpot.Orchestrator.Application.Features.Calculation.Queries.PlotScatteringComparePng;
 using SaxsSpot.Shared.Contracts.Models;
 
 namespace SaxsSpot.Orchestrator.Controllers;
@@ -160,6 +162,28 @@ public class CalculationController(IMediator mediator) : Controller
 
     [HttpGet("plot-analyse-average-png")]
     public async Task<IActionResult> BuildChartAnalyseAveragePng([FromQuery] BuildChartAnalyseAveragePngRequest dto)
+    {
+        var result = await mediator.Send(dto);
+        if (!result.IsSuccess)
+        {
+            return BadRequest(result.ToResultDto());
+        }
+        return Ok(result.ToResultDto());
+    }
+
+    [HttpGet("plot-scattering-compare")]
+    public async Task<IActionResult> PlotScatteringCompare([FromQuery] PlotScatteringCompareRequest dto)
+    {
+        var result = await mediator.Send(dto);
+        if (!result.IsSuccess)
+        {
+            return BadRequest(result.ToResultDto());
+        }
+        return Ok(result.ToResultDto());
+    }
+
+    [HttpGet("plot-scattering-compare-png")]
+    public async Task<IActionResult> PlotScatteringComparePng([FromQuery] PlotScatteringComparePngRequest dto)
     {
         var result = await mediator.Send(dto);
         if (!result.IsSuccess)
