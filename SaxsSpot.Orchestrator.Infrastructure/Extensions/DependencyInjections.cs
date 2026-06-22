@@ -5,6 +5,7 @@ using SaxsSpot.Orchestrator.Application.Interfaces;
 using SaxsSpot.Orchestrator.Domain.NanosystemApi;
 using SaxsSpot.Orchestrator.Infrastructure.DbContexts;
 using SaxsSpot.Orchestrator.Infrastructure.ExternalApis;
+using SaxsSpot.Orchestrator.Infrastructure.Mappings;
 using SaxsSpot.Orchestrator.Infrastructure.Storages;
 
 namespace SaxsSpot.Orchestrator.Infrastructure.Extensions;
@@ -16,7 +17,8 @@ public static class DependencyInjections
         return services.AddDbContext<CalculationDbContext>()
             .AddScoped<INanosystemApi, NanosystemApi>()
             .AddScoped<ICalculationStorage, CalculationStorage>()
-            .AddScoped<ICalculateObjectStorage, CalculateObjectStorage>();
+            .AddScoped<ICalculateObjectStorage, CalculateObjectStorage>()
+            .AddAutoMapper(cfg => cfg.AddMaps(typeof(NanosystemProfile).Assembly));
     }
 
     public static IServiceCollection AddIntegration(this IServiceCollection services, IConfiguration configuration)

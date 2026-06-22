@@ -249,6 +249,7 @@ services:
       - kafka-setup
       - liquibase-nanosystem
       - tracker-grpc-service
+      - minio
 
   orchestrator-service:
     image: jordenndev/saxsspot-orchestrator-service
