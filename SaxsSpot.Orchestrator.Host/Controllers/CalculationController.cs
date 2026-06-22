@@ -7,6 +7,7 @@ using SaxsSpot.Orchestrator.Application.Features.Calculation.Queries.BuildChartA
 using SaxsSpot.Orchestrator.Application.Features.Calculation.Queries.BuildChartAnalyseAverage;
 using SaxsSpot.Orchestrator.Application.Features.Calculation.Queries.BuildChartAnalysePng;
 using SaxsSpot.Orchestrator.Application.Features.Calculation.Queries.BuildChartAnalyseAveragePng;
+using SaxsSpot.Orchestrator.Application.Features.Calculation.Queries.DownloadCalculation;
 using SaxsSpot.Orchestrator.Application.Features.Calculation.Queries.GetCalcualtionList;
 using SaxsSpot.Orchestrator.Application.Features.Calculation.Queries.GetCalculation;
 using SaxsSpot.Orchestrator.Application.Features.Calculation.Queries.GetCalculationListByNanosystemId;
@@ -191,5 +192,17 @@ public class CalculationController(IMediator mediator) : Controller
             return BadRequest(result.ToResultDto());
         }
         return Ok(result.ToResultDto());
+    }
+
+    [HttpGet("download-calculation")]
+    public async Task<IActionResult> DownloadCalculation([FromQuery] DownloadCalculationQuery query)
+    {
+        var result = await mediator.Send(query);
+        if (result.IsFailed)
+        {
+            return BadRequest(result.ToResultDto());
+        }
+
+        return File(result.Value, "application/octet-stream", $"calculation-{query.Id}.txt");
     }
 }

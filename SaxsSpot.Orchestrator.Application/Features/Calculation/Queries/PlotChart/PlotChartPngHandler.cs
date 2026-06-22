@@ -17,8 +17,10 @@ public class PlotChartPngHandler(
         var calculations = await storage.WhereAsync(x => request.CalculatesId.Contains(x.Id));
 
         var datasets = new List<Dataset>();
-        foreach (var calculation in calculations)
+        var calcList = calculations.ToList();
+        for (var i = 0; i < calcList.Count; i++)
         {
+            var calculation = calcList[i];
             var datasetPoints = new List<IntensityResult>();
             await foreach (var p in objectStorage.Load(calculation.ObjectId, cancellationToken)
                                .WithCancellation(cancellationToken))
@@ -28,7 +30,7 @@ public class PlotChartPngHandler(
 
             datasets.Add(new Dataset
             {
-                id = calculation.Id.ToString(),
+                id = calcList.Count == 1 ? "By model" : $"By model ({i + 1})",
                 x = datasetPoints.Select(p => p.QVector).ToArray(),
                 y = datasetPoints.Select(p => p.Intensity).ToArray()
             });

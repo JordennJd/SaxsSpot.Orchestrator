@@ -59,7 +59,7 @@ public class PlotChartAveragePngHandler(
 
         var averageDataset = new Dataset
         {
-            id = $"Average (n={count})",
+            id = $"By model (n={count})",
             x = (double[])xRef.Clone(),
             y = ySum
         };

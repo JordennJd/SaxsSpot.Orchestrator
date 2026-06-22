@@ -65,7 +65,7 @@ public class ScatteringCompareChartBuilder(
             datasets.Add((points.Select(p => p.QVector).ToArray(), points.Select(p => p.Intensity).ToArray()));
         }
 
-        return BuildCombinedDataset(datasets, average, "Legacy (worker)");
+        return BuildCombinedDataset(datasets, average, "By model");
     }
 
     private async Task<Dataset?> BuildNanoDataset(
@@ -100,7 +100,7 @@ public class ScatteringCompareChartBuilder(
             datasets.Add((points.Select(p => p.Q).ToArray(), points.Select(p => p.I).ToArray()));
         }
 
-        return BuildCombinedDataset(datasets, average, "SAXS (new)");
+        return BuildCombinedDataset(datasets, average, "Theory");
     }
 
     private static Dataset? BuildCombinedDataset(
